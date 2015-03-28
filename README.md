@@ -1,11 +1,11 @@
 # CakePHP Environment Awareness Demo
 
-This repo contains a sample CakePHP application that will load configuration information based on an environment flag value.
+A sample CakePHP application that will load configuration information based on an environment flag value.
 
 It is meant to accompany this presentation: @TODO
 
 
-## Overview
+## The Short Version
 
 A web app most likely has to connect to a different database when being developed on a developer's workstation or virtual machine compared to the production server(s). This repo demonstrates how to set up a CakePHP project to load different configuration values based on a value unique to each operating environment, such as an environment variable.
 
@@ -76,7 +76,7 @@ return [
 
 In your app, you can access a consistently named key and obtain a value appropriate for the current environment. Take `src/Template/Layout/default.ctp` for example:
 
-```php
+```html
 <!-- src/Template/Layout/default.ctp -->
 <head>
 	<style>
@@ -90,7 +90,7 @@ In your app, you can access a consistently named key and obtain a value appropri
 
 That's a much better alternative than this:
 
-```php
+```html
 <!-- src/Template/Layout/default.ctp -->
 <?php if ($_SERVER['SERVER_NAME'] === 'productionsite.com') {
 	$bgColor = '#ffffff'; // white in production
