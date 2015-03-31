@@ -1,5 +1,5 @@
 Vagrant.configure(2) do |config|
-  config.vm.box = "hashicorp/precise64" # scotch/box mysql: root/root
+  config.vm.box = "scotch/box"
 
   config.vm.hostname = "cakephp-env-awareness"
 
@@ -22,25 +22,21 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-set -v
 
 echo "## Installing dependencies."
-export DEBIAN_FRONTEND=noninteractive
+tail -4 /etc/motd.tail | sudo tee /etc/motd.tail >/dev/null
 sudo apt-get update -y
-sudo apt-get install -y software-properties-common python-software-properties build-essential curl wget libsqlite3-dev
+sudo apt-get install -y software-properties-common python-software-properties build-essential libsqlite3-dev
 sudo apt-add-repository ppa:brightbox/ruby-ng -y
-sudo add-apt-repository -y ppa:ondrej/php5-5.6
 
 sudo apt-get update -y
-sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password password'
-sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password password'
-sudo apt-get install -y mysql-server apache2 php5 php5-curl php5-intl php5-mcrypt php5-mysql ruby1.9.3
+sudo apt-get install -y php5-intl php5-mcrypt ruby1.9.3
 
 
 echo "## Installing Mailcatcher."
 sudo gem install mailcatcher
 
-sudo tee /etc/init/mailcatcher.conf <<-'EOINIT'
+sudo tee /etc/init/mailcatcher.conf <<-'EOINIT' > /dev/null
 	description "Mailcatcher"
 	start on runlevel [2345]
 	stop on runlevel [!2345]
@@ -57,11 +53,10 @@ echo "APP_ENV=vagrant" >> /home/vagrant/.profile
 
 
 echo "## Setting up Apache virtual host."
-sudo tee /etc/apache2/sites-available/cake-env-awareness.conf <<-'EOCONF'
+sudo tee /etc/apache2/sites-available/cake-env-awareness.conf <<-'EOCONF' > /dev/null
 <VirtualHost *:80>
 	ServerName cake-env-awareness.local
 	ServerAdmin webmaster@localhost
-
 	ErrorLog \${APACHE_LOG_DIR}/env-awareness_error.log
 	CustomLog \${APACHE_LOG_DIR}/env-awarenessaccess.log combined
 
@@ -79,16 +74,11 @@ EOCONF
 
 sudo a2ensite cake-env-awareness
 sudo a2dissite 000-default
-sudo a2enmod env rewrite
 sudo service apache2 restart
 
 
 echo "## Setting up MySQL databases, users and passwords."
-mysql -u root -p'password' mysql <<-'EOSQL'
-	-- Clean up users.
-	GRANT ALL ON *.* TO "root"@"%" IDENTIFIED BY "password" WITH GRANT OPTION;
-	UPDATE `user` SET `password`=PASSWORD("password") WHERE `user`='root';
-
+mysql -u root -p'root' mysql <<-'EOSQL' > /dev/null
 	-- Create the default database WE expect.
 	CREATE DATABASE IF NOT EXISTS `vagrant` DEFAULT CHARACTER SET 'utf8';
 	GRANT ALL ON `vagrant`.* TO "vagrant"@"%" IDENTIFIED BY "vagrant";
@@ -101,8 +91,6 @@ mysql -u root -p'password' mysql <<-'EOSQL'
 	FLUSH TABLES;
 	FLUSH PRIVILEGES;
 EOSQL
-
-set +v
 
   SHELL
 end
