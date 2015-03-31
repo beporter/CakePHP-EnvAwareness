@@ -1,4 +1,4 @@
-footer: © Brian Porter 2015
+footer: Brian Porter, 2015 [CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)
 slidenumbers: true
 
 
@@ -468,8 +468,8 @@ try {
 // and the local config file (when present.)
 try {
 	$env = getenv('APP_ENV');
-	Configure::load("app_{$env}", 'default');
-	Configure::load('app_local', 'default');
+	Configure::load("app-{$env}", 'default');
+	Configure::load('app-local', 'default');
 } catch (\Exception $e) {
 	// It is not an error if these files are missing.
 }
@@ -559,7 +559,7 @@ return [
 
 
 ---
-### `config/app_dev.php`
+### `config/app-dev.php`
 
 Development, overrides only:
  
@@ -579,10 +579,10 @@ return [
 
 
 * `config/app.php`
-* `config/app_*.php` (except `config/app_local.php`)
+* `config/app-*.php` (except `config/app-local.php`)
 * (In Cake 2.x: `database.php` and `email.php` also get committed.)
 
-Add `/config/core_local.php` to your `.gitignore` file.
+Add `/config/app-local.php` to your `.gitignore` file.
 
 (Each checked out copy of the repo can define its own overrides there.)
 

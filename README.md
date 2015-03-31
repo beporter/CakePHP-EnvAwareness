@@ -2,7 +2,7 @@
 
 A sample CakePHP application that will load configuration information based on an environment flag value.
 
-It is meant to accompany this presentation: @TODO
+It is meant to accompany this presentation: [Running a CakePHP App in Different Operating Environments](slides/env-aware-cake-apps.md)
 
 
 ## The Short Version
@@ -39,8 +39,8 @@ With Cake 3, you can load additional configuration files quickly in `config/boot
 // and the local config file (when present.)
 try {
 	$env = getenv('APP_ENV');
-	Configure::load("app_{$env}", 'default');
-	Configure::load('app_local', 'default');
+	Configure::load("app-{$env}", 'default');
+	Configure::load('app-local', 'default');
 } catch (\Exception $e) {
 	// It is not an error if these files are missing.
 }
@@ -54,7 +54,7 @@ Assuming the files contained the following:
 ```php
 // config/app.php
 return [
-	'debug' => 0,
+	'debug' => false,
     'App' => [
     	'FancyName' => 'Wonderful Application',
     	'EnvSignalColor' => '#ffffff', // White admin background in production.
@@ -65,7 +65,7 @@ return [
 ```php
 // config/app-stage.php
 return [
-	'debug' => 1, // Turn debug on in the staging environment.
+	'debug' => true, // Turn debug on in the staging environment.
     'App' => [
     	// (Note that we don't change the [FancyName] key.)
     	'EnvSignalColor' => '#77cccc', // Red admin background in staging.
@@ -119,6 +119,8 @@ This same principle can be applied to Cake 2.x and 1.x apps, although there are 
 
 ## License
 
-&copy; Brian Porter 2015
+Brian Porter, 2015
 
-Released under the MIT license.
+[CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)
+
+Code released under the [MIT license](LICENSE.md).
