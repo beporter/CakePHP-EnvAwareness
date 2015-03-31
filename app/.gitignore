@@ -1,4 +1,8 @@
 /vendor/*
-/config/app.php
 /tmp/*
 /logs/*
+/.vagrant/*
+
+# We want to track all `config/app-*.php` files
+# EXCEPT the local overrides file.
+/config/app-local.php
