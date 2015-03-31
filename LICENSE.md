@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 
-Copyright (c) 2015 Brian Porter
+Brian Porter 2015 [CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/)
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
