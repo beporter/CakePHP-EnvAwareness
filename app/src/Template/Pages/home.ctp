@@ -1,26 +1,10 @@
 <?php
-/**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @since         0.10.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
- */
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Error\Debugger;
 use Cake\Network\Exception\NotFoundException;
-
 $this->layout = false;
-
-$cakeDescription = 'CakePHP: the rapid development php framework';
 ?>
 <!DOCTYPE html>
 <html>
@@ -28,7 +12,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        <?= $cakeDescription ?>
+        <?= Configure::read('Defaults.shortName') ?>
     </title>
     <?= $this->Html->meta('icon') ?>
     <?= $this->Html->css('base.css') ?>
@@ -131,22 +115,44 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
                 <?php endif; ?>
             </div>
         </div>
+
         <div class="row">
-            <div class="columns large-6">
+            <div class="columns large-12">
                 <h3>Editing this Page</h3>
-                <ul>
-                    <li>To change the content of this page, edit: src/Template/Pages/home.ctp.</li>
-                    <li>You can also add some CSS styles for your pages at: webroot/css/.</li>
-                </ul>
-            </div>
-            <div class="columns large-6">
-                <h3>Getting Started</h3>
-                <ul>
-                    <li><a target="_blank" href="http://book.cakephp.org/3.0/en/">CakePHP 3.0 Docs</a></li>
-                    <li><a target="_blank" href="http://book.cakephp.org/3.0/en/tutorials-and-examples/bookmarks/intro.html">The 15 min Bookmarker Tutorial</a></li>
-                    <li><a target="_blank" href="http://book.cakephp.org/3.0/en/tutorials-and-examples/blog/blog.html">The 15 min Blog Tutorial</a></li>
-                </ul>
-                <p>
+
+				<p>The heading on this page will change depending on the value of the <code>APP_ENV</code> environment variable set on the server.</p>
+
+				<p>To experiment with this:</p>
+
+				<ul>
+					<li>Create a file <code>app/config/app-demo.php</code> and place this code in it:
+						<pre>
+<?= h(<<<EOD
+<?php
+return [
+	'debug' => true,
+	'Defaults' => [
+		'longName' => 'My Own Demo Env',
+		'envFlagColor' => '#2244AA',
+	],
+];
+EOD
+) ?>
+						</pre>
+
+					<li>
+						<p>Change the <code>SetEnv APP_ENV vagrant</code> line in the VM's <code>/etc/apache2/sites-available/cake-env-awareness.conf</code> file to <code>SetEnv APP_ENV demo</code>
+
+						<p>(This command will perform the substitution for you when run in the VM: <code>sudo sed -i'' 's/SetEnv APP_ENV vagrant/SetEnv APP_ENV demo/' /etc/apache2/sites-enabled/cake-env-awareness.conf</code>)
+
+					<li>Restart apache using <code>sudo service apache2 restart</code>.
+
+					<li>Reload the page. The output from <code>Configure::read('Defaults.longName')</code> will have changed to reflect the new override value.
+
+					<li>After you do this, you'll find that the &quot;Database Connection&quot; check above will start failing. This is because no database connection settings are defined in your <code>app-demo.php</code> config file that override the production settings from <code>app.php</code>.
+
+					<li>Continue to experiment with adding and overriding values in the app's config files on your own. What happens if you try to override an array of values?
+				</ul>
             </div>
         </div>
 

@@ -11,14 +11,21 @@ A vagrant virtual machine is provided for experimentation with the Cake app.
 1. Run `cd CakePHP-EnvAwareness/app`
 1. Run `composer install`.
 1. Run `vagrant up`.
-1. Visit [http://localhost:8080/](http://localhost:8080/).
 
 
 ## Experimenting
 
 The vagrant VM has an environment variable named `APP_ENV` set to `vagrant` by default.
 
-1. Log into the VM `vagrant ssh`.
-1. Move to the web root `cd /var/www/app`
-1. Run `bin/cake config_read.config_read Defaults.longName`
-1. Run `APP_ENV=prod bin/cake config_read.config_read Defaults.longName`
+### Web Server
+
+1. Visit [http://localhost:8080/](http://localhost:8080/).
+
+### Command Line
+
+1. Log into the VM: `vagrant ssh`.
+1. Check that the environment variable is already set by the user's `.profile` file by running: `echo $APP_ENV`.
+1. Move to the web root: `cd /var/www/app`
+1. Run: `bin/cake config_read.config_read Defaults.longName`
+1. Run: `APP_ENV=prod bin/cake config_read.config_read Defaults.longName`
+
