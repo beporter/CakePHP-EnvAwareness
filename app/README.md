@@ -15,7 +15,11 @@ A vagrant virtual machine is provided for experimentation with the Cake app.
 
 ## Experimenting
 
-The vagrant VM has an environment variable named `APP_ENV` set to `vagrant` by default.
+The vagrant VM has an environment variable named `APP_ENV` set to `vagrant` by default in the Apache virtual host config and on the command line. Early in Cake's bootstrapping process, the main config file, `config/app.php` is loaded containing the "master" configs for the app.
+
+In this demo, the `APP_ENV` environment variable is read and the value is used to look for a matching config file. In this case, `config/app-vagrant.php`. This file is loaded on top of the master config.
+
+Any values defined in this second config will be merged into the master configs, allowing individual values to be overridden for specific values of `APP_ENV`.
 
 ### Web Server
 
