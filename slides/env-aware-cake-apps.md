@@ -57,6 +57,10 @@ Who hasn't needed to set different database connection values in development and
 
 ^ Almost every web application ever developed needs to use a different database connection when the developer is working on their local copy versus when it is running in production.
 
+^ @TODO: Justin - seems like a good place for a joke
+
+^ @TODO: Justin - Simple seems like the wrong here, it's easy to setup, but that is about it
+
 
 ---
 ## `config/app.php` in development
@@ -84,7 +88,7 @@ return [
     'Datasources' => [
         'default' => [
             // *snip*
-            'host' => 'my-rds.123abc.us-east-1.rds.amazonaws.com',
+            'host' => 'mine.us-east-1.rds.amazonaws.com',
             'database' => 'production_app',
             'username' => 'production_app',
             'password' => 'rw8d&FI.?:@2',
@@ -173,7 +177,7 @@ config/app.php
 ---
 ## What's wrong with excluding configs from the repo?
 
-* :heavy_plus_sign: It's simple(?)
+* :heavy_plus_sign: It's straightforward(?)
 * :heavy_plus_sign: No sensitive info in the repo.
 
 * :heavy_minus_sign: No backups or history.
@@ -195,28 +199,31 @@ config/app.php
 
 ```php
 // src/Template/Layout/default.ctp
-<?php if ($_SERVER['SERVER_NAME'] === 'productionsite.com') {
+<?php
+if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
 	echo 'This is production';
-} elseif ($_SERVER['SERVER_NAME'] === 'stagingsite.com') {
+} elseif ($_SERVER['SERVER_NAME'] === 'stage.site.com') {
 	echo 'This is staging';
 } else {
 	echo 'This is development';
-} ?>
+}
+?>
 ```
 
 
 ---
 ## What's wrong with that?
 
-The list is too long to fit on this slide.
-
-Let's just continue on...
+* :heavy_minus_sign: Unnecessarily verbose.
+* :heavy_minus_sign: Code must change if domain names change.
+* :heavy_minus_sign: Hardcoded to 3 specific environments.
+* :heavy_minus_sign: The env flag being checked is duplicated in the code.
 
 
 ---
 ## Concepts
 
-What are the qualities of the ideal system for handling custom configurations per environment?
+What are the properties of the _ideal_ system for handling custom configurations per environment?
 
 
 ---
@@ -228,7 +235,7 @@ Example using Apache's `SetEnv`:
 # my_apache_vhost.conf
 <VirtualHost *:80>
     ServerName stagingsite.com
-    SetEnv APP_ENV stage
+    SetEnv APP_ENV staging
 </VirtualHost>
 ```
 
@@ -237,12 +244,12 @@ and a command line env var:
 ```bash
 # ~/.profile or ~/.bash_profile
 # Make sure env is set for Cake Shells.
-export APP_ENV=stage
+export APP_ENV=staging
 ```
 
 ^ This can really be anything that can be defined per-environment, but I prefer an environment variable.
 
-^ In this case it's an environment variable named `APP_ENV`. The value of this variable will match the name of a given config file with the app.
+^ In this case it's an environment variable named `APP_ENV`.
 
 
 ---
@@ -260,6 +267,9 @@ _Define your own "independently controllable" environment switch to maintain con
 ^ It might be tempting to use an "organic" value for the environment switch, such as a server hostname, or IP address.
 
 ^ But this binds your config naming to something outside of your control, limiting choices in the future.
+
+^ @TODO: https://loadsys.slack.com/archives/D025JBENK/p1427843821000037
+
 
 
 ---
@@ -362,20 +372,20 @@ _Let the config bootstrapping process **be** the conditional statement by reloca
 } ?>
 ```
 
+
 ---
 ## How about this instead?
-![right](browser_envs.jpg)
+![right fit](browser_envs.png)
 
 
 ```php
 // src/Template/Layout/default.ctp
-<?php echo Configure::read('EnvironmentMessage'); ?>
+<?php
+	echo Configure::read('EnvironmentMessage');
+?>
 ```
 
-So how do we make that happen?
-
-
-@TODO: Add an image of 3 browsers with corresponding URLs and the different messages displayed.
+How do we make that happen?
 
 
 ---
@@ -476,7 +486,7 @@ try {
 ```
 
 ---
-## TODO: Dig into how this satisfies the mandates listed above.
+## @TODO: Dig into how this satisfies the mandates listed above?
 
 
 ---
@@ -488,7 +498,7 @@ With a little extra effort, Cake 2.x and even 1.x can be adapted.
 * Convert `app/Config/database.php` to be env-aware.
 * Convert `app/Config/email.php` to be env-aware.
 
-@TODO: Set up a sample GitHub repo with these samples and kill the rest of this "slide".
+^ @TODO: Set up a Cake-2.x branch in the repo with these samples and kill the rest of this "slide".
 
 <!--
 ```php
@@ -575,36 +585,45 @@ return [
 
 
 ---
-## What gets committed? @TODO
+## What gets committed?
 
 
 * `config/app.php`
-* `config/app-*.php` (except `config/app-local.php`)
-* (In Cake 2.x: `database.php` and `email.php` also get committed.)
+* `config/app-*.php`
+	* (except `config/app-local.php`)
+* Cake 2.x: `database.php` and `email.php`.
 
 Add `/config/app-local.php` to your `.gitignore` file.
 
-(Each checked out copy of the repo can define its own overrides there.)
+^ (Each checked out copy of the repo can define its own overrides there.)
 
 
 ---
-## Usage Examples @TODO
+## Usage Examples
 
-* Example: styleForEnv()-ish case where "naive" way is to `switch` on the actual value of the env var itself (bad cause code is coupled to the actual VALUES of the environment variable). Better way is to store the actual CSS changes in Configure and just fetch them (easier to adapt too!)
+https://github.com/beporter/CakePHP-EnvAwareness
 
-* Example: Passing an environment to Javascript (Ember) in default layout. (Put a "token" value in Configure to represent the environment and set that in a <meta> tag.)
+* Cake 3 app with vagrant.
+* Includes [loadsys/ConfigReadShell](https://github.com/loadsys/CakePHP-ConfigReadShell) for command line access.
+* Switch app background color based on env.
 
-* Using [loadsys/ConfigReadShell](https://github.com/loadsys/CakePHP-ConfigReadShell) to bring env-aware-vars to the command line.
-
-* Env and Shells. AKA: Making sure your cron jobs execute with the correct set of configs.
 
 
 ---
-## Other Random Points to work in @TODO
+## @TODO: Other random points to work in?
 
 * Works all the way back in 1.2/1.3.
 	* Mind how 1.3 loads overrides: Overwrites entire top-level keys!
 
+* Example: styleForEnv()-ish case
+
+^ where "naive" way is to `switch` on the actual value of the env var itself (bad cause code is coupled to the actual VALUES of the environment variable). Better way is to store the actual CSS changes in Configure and just fetch them (easier to adapt too!)
+
+* Example: Passing an environment to Javascript (Ember) in default layout.
+
+^ (Put a "token" value in Configure to represent the environment and set that in a <meta> tag.)
+
+* Env and Shells. AKA: Making sure your cron jobs execute with the correct set of configs.
 
 ---
 ## Questions?
@@ -615,12 +634,8 @@ Brian Porter
 
 Project Lead and Web Developer
 for Loadsys Web Strategies
-[http://loadsys.com](http://loadsys.com)
+[loadsys.com](http://loadsys.com)
 
-[^slides]: [@TODO]()
+Slides, Sample Project
+[github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
 
-[^markdown]: [https://gist.github.com/beporter/8134727ce3da27c8bdfa](https://gist.github.com/beporter/8134727ce3da27c8bdfa)
-
-^ [^slides]
-
-^ [^markdown]
