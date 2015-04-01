@@ -55,7 +55,11 @@ Who hasn't needed to set different database connection values in development and
 
 ![inline](http://imgs.xkcd.com/comics/exploits_of_a_mom.png)
 
+[^xkcd]: Exploits of a Mom http://xkcd.com/327/
+
 ^ Almost every web application ever developed needs to use a different database connection when the developer is working on their local copy versus when it is running in production.
+
+^ [^xkcd]
 
 
 ---
@@ -314,15 +318,15 @@ export APP_ENV=staging
 
 ---
 ## The environment switch should be "artificial"
-![right](john_holm_choices.jpg)
+![right 340%](http://farm3.staticflickr.com/2304/2366471410_56b6da9e71_o_d.jpg)
 
 The environment flag used must be maleable to adapt to changing circumstances.
 
 _Define your own "independently controllable" environment switch to maintain control of your own destiny._
 
-[^image]: John Holm (CC BY 2.0)<br>flickr.com/photos/29385617@N00/2366471410
+[^choices]: John Holm (CC BY 2.0)<br>flickr.com/photos/29385617@N00/2366471410
 
-^ [^image]
+^ [^choices]
 
 ^ It might be tempting to use an "organic" value for the environment switch, such as a server hostname, or IP address.
 
@@ -382,7 +386,7 @@ Keep the other configs DRY by overriding **only** what is different in each envi
 
 _Reduce the risk of "missing" a config that is defined in multiple places to the minimum possible._
 
-^ Good example of this is `debug`. It defaults to `false` in app.php, and is selectively turned on in development, testing and review environments.
+^ Good example of this is `debug`. We want it to default to `false` for production, and only selectively turn on in development, testing and review environments.
 
 
 ---
