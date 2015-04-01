@@ -30,7 +30,7 @@ Project Lead and Web Developer
 for Loadsys Web Strategies
 [http://loadsys.com](http://loadsys.com)
 
-[posted slides]() @TODO
+[pdf](env-aware-cake-apps.pdf)
 
 [env-aware-cake-apps.md](env-aware-cake-apps.md)
 

@@ -13,9 +13,9 @@ slidenumbers: true
 ## Overview
 
 * What do I mean by "operating environments"?
-* How can the needs of an app change based on the environment?
-* Review various methods for configuring behavior per environment.
-* Requirements for an ideal env-aware config system.
+* How can an app's needs change based on the environment?
+* Various methods for configuring Cake per-environment.
+* Properties of an ideal env-aware config system.
 * Examples.
 
 ^ All examples will reference Cake 3, but are easily applied to Cake 2.x and even 1.x.
@@ -51,15 +51,11 @@ slidenumbers: true
 ---
 ## The most basic example
 
-Database connections.
-
 Who hasn't needed to set different database connection values in development and production?
 
+![inline](http://imgs.xkcd.com/comics/exploits_of_a_mom.png)
+
 ^ Almost every web application ever developed needs to use a different database connection when the developer is working on their local copy versus when it is running in production.
-
-^ @TODO: Justin - seems like a good place for a joke
-
-^ @TODO: Justin - Simple seems like the wrong here, it's easy to setup, but that is about it
 
 
 ---
@@ -97,11 +93,131 @@ return [
 ];
 ```
 
+^ The conflict is that the same config keys need to exist in the same file, but with different values under different conditions.
+
 
 ---
 ## How can we handle this difference?
 
-Let's start with some bad examples...
+* There are many approaches.
+* They all have different complexity and tradeoffs.
+* Let's start with some common ones...
+
+
+---
+## :x: Not using Configure at all :x:
+
+```php
+// src/Template/Layout/default.ctp
+<?php
+if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
+	echo 'This is production';
+} elseif ($_SERVER['SERVER_NAME'] === 'stage.site.com') {
+	echo 'This is staging';
+} else {
+	echo 'This is development';
+}
+?>
+```
+
+^ It's one thing when it's a "simple" display string...
+
+
+---
+## :x: Not using Configure at all :x:
+
+```php
+<?php
+if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
+	Configure::write('Datasources.default', [
+		'className' => 'Cake\Database\Connection',
+		'driver' => 'Cake\Database\Driver\Mysql',
+		'persistent' => false,
+		'host' => 'prod-db-server.amazonaws.com',
+        //'port' => 'nonstandard_port_number',
+		'username' => 'rdsuser',
+		'password' => 'O*&tITbVfr^%CU',
+		'database' => 'productionsite',
+		'encoding' => 'utf8',
+		'timezone' => 'UTC',
+		'cacheMetadata' => true,
+        'quoteIdentifiers' => false,
+	];
+} elseif ($_SERVER['SERVER_NAME'] === 'stage.site.com') {
+	Configure::write('Datasources.default', [
+		'className' => 'Cake\Database\Connection',
+		'driver' => 'Cake\Database\Driver\Mysql',
+		'persistent' => false,
+		'host' => 'staging-db-server',
+        'port' => '3307',
+		'username' => 'common',
+		'password' => 'password',
+		'database' => 'staging',
+		'encoding' => 'utf8',
+		'timezone' => 'UTC',
+		'cacheMetadata' => true,
+        'quoteIdentifiers' => false,
+	];
+} else {
+	Configure::write('Datasources.default', [
+		'className' => 'Cake\Database\Connection',
+		'driver' => 'Cake\Database\Driver\Mysql',
+		'persistent' => false,
+		'host' => 'localhost',
+		'username' => 'root',
+		'password' => 'root',
+		'database' => 'default',
+		'encoding' => 'utf8',
+		'timezone' => 'UTC',
+		'cacheMetadata' => true,
+        'quoteIdentifiers' => false,
+	];
+}
+?>
+```
+
+^ It's another thing when you're having to repeat big, slightly-different chunks of code all over your app to control behavior.
+
+
+---
+## What's wrong with that?
+
+* :heavy_minus_sign: Unnecessarily verbose.
+* :heavy_minus_sign: Code must change if domain names change.
+* :heavy_minus_sign: Hardcoded to 3 specific environments.
+* :heavy_minus_sign: The env flag being checked is duplicated in the code.
+
+
+---
+## :x: Not storing configs in the repo at all :x:
+
+```bash
+$ cat .gitignore
+tmp/
+vendor/
+config/app.php
+#...
+```
+
+
+---
+## What's wrong with excluding configs from the repo?
+
+* :heavy_plus_sign: It's straightforward(?)
+* :heavy_plus_sign: No sensitive info in the repo.
+
+* :heavy_minus_sign: No backups or history.
+* :heavy_minus_sign: Troubleshooting is harder.
+* :heavy_minus_sign: Still not DRY.
+* :heavy_minus_sign: Still fragile.
+
+^ Can't track changes to the configs.
+
+^ Can't double-check settings without logging into the appropriate server.
+
+^ The config definitions don't live with the code where they are used. (Definitions live on running servers, usage lives in the codebase.)
+
+^ Someone with access to each env must manually update configs when they change. If a dev adds a new key in the code, each server needs to be updated to define it.
 
 
 ---
@@ -110,14 +226,14 @@ Let's start with some bad examples...
 ```bash
 # Access the server
 $ ssh deploy@production-server.com
-$ ls config/
+$ ls config/app*
 app.prod.php
 app.staging.php
 app.qa.php
 app.dev.php
 
 # "Deploy" new code
-$ git fetch origin master  
+$ git pull origin master
 
 # Copy updated config into place.
 $ cp config/app.staging.php config/app.php
@@ -163,64 +279,6 @@ $ cp config/app.staging.php config/app.php
 
 
 ---
-## :x: Not storing configs in the repo at all :x:
-
-```bash
-$ cat .gitignore
-tmp/
-vendor/
-config/app.php
-#...
-```
-
-
----
-## What's wrong with excluding configs from the repo?
-
-* :heavy_plus_sign: It's straightforward(?)
-* :heavy_plus_sign: No sensitive info in the repo.
-
-* :heavy_minus_sign: No backups or history.
-* :heavy_minus_sign: Troubleshooting is harder.
-* :heavy_minus_sign: Still not DRY.
-* :heavy_minus_sign: Still fragile.
-
-^ Can't track changes to the configs.
-
-^ Can't double-check settings without logging into the appropriate server.
-
-^ The config definitions don't live with the code where they are used. (Definitions live on running servers, usage lives in the codebase.)
-
-^ Someone with access to each env must manually update configs when the change.
-
-
----
-## :x: Not using Configure at all :x:
-
-```php
-// src/Template/Layout/default.ctp
-<?php
-if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
-	echo 'This is production';
-} elseif ($_SERVER['SERVER_NAME'] === 'stage.site.com') {
-	echo 'This is staging';
-} else {
-	echo 'This is development';
-}
-?>
-```
-
-
----
-## What's wrong with that?
-
-* :heavy_minus_sign: Unnecessarily verbose.
-* :heavy_minus_sign: Code must change if domain names change.
-* :heavy_minus_sign: Hardcoded to 3 specific environments.
-* :heavy_minus_sign: The env flag being checked is duplicated in the code.
-
-
----
 ## Concepts
 
 What are the properties of the _ideal_ system for handling custom configurations per environment?
@@ -251,6 +309,8 @@ export APP_ENV=staging
 
 ^ In this case it's an environment variable named `APP_ENV`.
 
+^ This will end up being the value the Cake app uses to load additional configs.
+
 
 ---
 ## The environment switch should be "artificial"
@@ -267,9 +327,6 @@ _Define your own "independently controllable" environment switch to maintain con
 ^ It might be tempting to use an "organic" value for the environment switch, such as a server hostname, or IP address.
 
 ^ But this binds your config naming to something outside of your control, limiting choices in the future.
-
-^ @TODO: https://loadsys.slack.com/archives/D025JBENK/p1427843821000037
-
 
 
 ---
@@ -297,9 +354,11 @@ _Adding environment-specific settings must be done only when there is no other c
 
 The app must check _"the thing that defines the environment"_ (environment var, Apache SetEnv, hostname, etc.)  **exactly once**.
 
-The app must perform all environment-specific logic **at that point only**.
+The app must perform logic for loading configs for that environment **at that point**.
 
 _If the environment detection needs to change in the future, there is only one place in the code to change._
+
+^ The app should check for the environment at one point, and fully set up the configs for that environment at the same time. From then on, the app will run with that single collection of configs.
 
 
 ---
@@ -323,6 +382,8 @@ Keep the other configs DRY by overriding **only** what is different in each envi
 
 _Reduce the risk of "missing" a config that is defined in multiple places to the minimum possible._
 
+^ Good example of this is `debug`. It defaults to `false` in app.php, and is selectively turned on in development, testing and review environments.
+
 
 ---
 ## Support untracked overrides for testing and security
@@ -333,25 +394,27 @@ The app must support situations where sensitive configs must not be stored in th
 
 _Provide a fallback for situations where tracking **all** config files is a hinderance to get the best of both worlds._
 
-^ Devs can change things in development for testing without accidentally COMMITTING those "test" settings by using an untracked file.
+^ Devs can change things in development for testing without accidentally COMMITTING those "test" settings. Achieved by using an untracked file.
 
-^ Allows a client to maintain privacy/secrecy of passwords/keys used by the app by letting them fill in a templated core_local.php file for production use.
+^ Allows a client to maintain privacy/secrecy of passwords/keys used by the app by letting them fill in a templated app-local.php file for production use.
 
 
 ---
 ## App is ignorant of its environment(s)
 
-The app must never be "aware" of the different environments.
+The app itself must never be "aware" of the different environments.
 
 It should always be presented with a **single** set of configs to use.
 
 _Provide the same collection of config keys to all environments. Change only their values per-environment._
 
+^ You'll know you've broken this rule if you find yourself referring to the value of the environment switch directly in your code. If I'm using the static string `'staging'` anywhere else in my code, that's a smell.
+
 
 ---
 ## All environments read the same keys
 
-The app must not wrap retrieved config values in conditionals.
+The app must not wrap retrieved config values in conditional statements. (`if/else`)
 
 Do **not** do different things depending on a config value: Do the same thing using the different values.
 
@@ -363,13 +426,15 @@ _Let the config bootstrapping process **be** the conditional statement by reloca
 
 ```php
 // src/Template/Layout/default.ctp
-<?php if ($_SERVER['SERVER_NAME'] === 'productionsite.com') {
+<?php
+if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
 	echo 'This is production';
-} elseif ($_SERVER['SERVER_NAME'] === 'stagingsite.com') {
+} elseif ($_SERVER['SERVER_NAME'] === 'stage.site.com') {
 	echo 'This is staging';
 } else {
 	echo 'This is development';
-} ?>
+}
+?>
 ```
 
 
@@ -381,7 +446,7 @@ _Let the config bootstrapping process **be** the conditional statement by reloca
 ```php
 // src/Template/Layout/default.ctp
 <?php
-	echo Configure::read('EnvironmentMessage');
+	echo Configure::read('Env.Message');
 ?>
 ```
 
@@ -437,7 +502,7 @@ Apache `SetEnv`:
 # my_apache_vhost.conf
 <VirtualHost *:80>
     ServerName stagingsite.com
-    SetEnv APP_ENV stage
+    SetEnv APP_ENV staging
 </VirtualHost>
 ```
 
@@ -445,7 +510,7 @@ and a command line environment variable:
 
 ```bash
 # ~/.profile or ~/.bash_profile
-export APP_ENV=stage
+export APP_ENV=staging
 ```
 
 
@@ -486,19 +551,145 @@ try {
 ```
 
 ---
-## @TODO: Dig into how this satisfies the mandates listed above?
+## `config/app.php`
+
+```php
+return [
+	'debug' => false,
+    'Env' => [
+    	'FancyName' => 'Wonderful Application',
+    	'SignalColor' => '#ffffff', // White admin bg in production.
+    ],
+];
+```
 
 
 ---
-## (Cake 2.x examples)
+### `config/app-staging.php`
 
-With a little extra effort, Cake 2.x and even 1.x can be adapted.
+Development, overrides only:
+ 
+```php
+return [
+	'debug' => true, // Turn debug on in development environments.
+    'Env' => [
+    	// (Note that we don't change the [FancyName] key.)
+    	'SignalColor' => '#77cccc', // Red admin bg in staging.
+    ],
+];
+```
 
-* Enable env config loading in `app/Config/core.php`.
-* Convert `app/Config/database.php` to be env-aware.
-* Convert `app/Config/email.php` to be env-aware.
 
-^ @TODO: Set up a Cake-2.x branch in the repo with these samples and kill the rest of this "slide".
+---
+## What gets committed?
+
+* `config/app.php`
+* `config/app-*.php`
+	* _except `config/app-local.php`_
+* Add `/config/app-local.php` to `.gitignore`.
+
+^ (Each checked out copy of the repo can define its own overrides there.)
+
+
+---
+## How well does this meet the ideal requirements?
+
+:white_check_mark: Uses a single switch from the environment.
+
+:white_check_mark: The environment switch is artificial.
+
+```apache
+<VirtualHost *:80>
+	SetEnv APP_ENV staging
+</VirtualHost>
+```
+
+
+---
+## How well does this meet the ideal requirements?
+
+:white_check_mark: All non-sensitive configs are tracked.
+
+```bash
+$ ls config/app*
+app.php
+app-staging.php
+app-quality.php
+app-vagrant.php
+app-local.php
+```
+
+^ Anything that **is** sensitive can be defined in `app-local.php` on each server.
+
+
+---
+## How well does this meet the ideal requirements?
+
+:white_check_mark: Env-specific settings are checked and loaded once.
+
+:white_check_mark: Production is the default case.
+
+:white_check_mark: Untracked overrides supported for testing/security.
+
+```php
+try {
+	$env = getenv('APP_ENV');
+	Configure::load("app-{$env}", 'default');
+	Configure::load('app-local', 'default');
+} catch (\Exception $e) {}
+```
+
+
+---
+## How well does this meet the ideal requirements?
+
+:white_check_mark: App is ignorant of its environment(s).
+
+:white_check_mark: All environments read the same keys.
+
+```php
+<?php
+	// We don't need to use `getenv()`
+	// anywhere in our code.
+	echo Configure::read('Env.Message');
+?>
+```
+
+
+---
+## How well does this meet the ideal requirements?
+
+:white_check_mark: Convention is favored over configuration.
+
+:white_check_mark: Only necessary keys are overridden.
+
+```php
+// config/app-staging.php
+return [
+	'debug' => true,
+    'Env' => [
+    	'SignalColor' => '#77cccc',
+    ],
+];
+```
+
+
+---
+## Example Project
+
+[github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
+
+* A demo Cake 3 app with vagrant.
+* Includes [loadsys/ConfigReadShell](https://github.com/loadsys/CakePHP-ConfigReadShell) for command line access.
+* Switch app background color based on env.
+
+
+---
+## Other random points
+
+* Works in 2.x via `Config/core.php`.
+	* Requires a boilerplate `database.php` and `email.php` that load their configs from `Configure` instead of defining static class properties.
+	* @TODO: Examples to come in the demo repo.
 
 <!--
 ```php
@@ -552,78 +743,28 @@ class EmailConfig {
 ```
 -->
 
+
 ---
-## `config/app.php`
+## Other random points
 
-Back in Cake 3 land, our production config:
+* Even works all the way back in 1.2/1.3.
+	* **Mind `Configure::load()` in 1.x**: It overwrites entire keys instead of merging.
+	* No examples _(get away from 1.x please)_, but you can ask me about it.
 
-```php
-return [
-	'debug' => 0,
-    'App' => [
-    	'FancyName' => 'Wonderful Application',
-    	'EnvSignalColor' => '#ffffff', // White admin background in production.
-    ],
-];
-```
+* Make sure your cron jobs execute with the correct environment set.
 
 
 ---
-### `config/app-dev.php`
-
-Development, overrides only:
- 
-```php
-return [
-	'debug' => 1, // Turn debug on in development environments.
-    'App' => [
-    	// (Note that we don't change the [FancyName] key.)
-    	'EnvSignalColor' => '#77cccc', // Red admin background in development.
-    ],
-];
-```
-
-
----
-## What gets committed?
-
-
-* `config/app.php`
-* `config/app-*.php`
-	* (except `config/app-local.php`)
-* Cake 2.x: `database.php` and `email.php`.
-
-Add `/config/app-local.php` to your `.gitignore` file.
-
-^ (Each checked out copy of the repo can define its own overrides there.)
-
-
----
-## Usage Examples
-
-https://github.com/beporter/CakePHP-EnvAwareness
-
-* Cake 3 app with vagrant.
-* Includes [loadsys/ConfigReadShell](https://github.com/loadsys/CakePHP-ConfigReadShell) for command line access.
-* Switch app background color based on env.
-
-
-
----
-## @TODO: Other random points to work in?
-
-* Works all the way back in 1.2/1.3.
-	* Mind how 1.3 loads overrides: Overwrites entire top-level keys!
+@TODO:
 
 * Example: styleForEnv()-ish case
 
-^ where "naive" way is to `switch` on the actual value of the env var itself (bad cause code is coupled to the actual VALUES of the environment variable). Better way is to store the actual CSS changes in Configure and just fetch them (easier to adapt too!)
+^ "naive" way is to `switch()` on the actual value of the env var itself (bad cause code is coupled to the actual VALUES of the environment variable). Better way is to store the actual CSS changes in Configure and just fetch them (easier to adapt too!)
 
 * Example: Passing an environment to Javascript (Ember) in default layout.
 
 ^ (Put a "token" value in Configure to represent the environment and set that in a <meta> tag.)
 
-* Env and Shells. AKA: Making sure your cron jobs execute with the correct set of configs.
 
 ---
 ## Questions?
