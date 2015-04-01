@@ -6,7 +6,7 @@ This repo is part of a talk I am presenting at [CakeFest](http://cakefest.org) 2
 
 ## Slides
 
-* [env-aware-cake-apps.md](env-aware-cake-apps.md). ([PDF]() @TODO)
+* [env-aware-cake-apps.md](env-aware-cake-apps.md). ([PDF](env-aware-cake-apps.pdf))
 * Presented using [Deckset](http://www.decksetapp.com/).
 * Early notes lived in [this Gist](https://gist.github.com/beporter/8134727ce3da27c8bdfa) before moving here.
 
@@ -26,13 +26,11 @@ Brian Porter
 [@beporter](https://twitter.com/beporter)
 <sub>_(although you shouldn't follow me, you'll be disappointed.)_</sub>
 
-Project Lead and Web Developer
-for Loadsys Web Strategies
+Project Lead & Web Developer at Loadsys
 [http://loadsys.com](http://loadsys.com)
 
-[pdf](env-aware-cake-apps.pdf)
-
-[env-aware-cake-apps.md](env-aware-cake-apps.md)
+[env-aware-cake-apps.md](https://github.com/beporter/CakePHP-EnvAwareness/tree/master/slides/env-aware-cake-apps.md) ([pdf](https://github.com/beporter/CakePHP-EnvAwareness/tree/master/slides/env-aware-cake-apps.pdf)
+)
 
 [https://github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
 

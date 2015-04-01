@@ -773,8 +773,7 @@ Brian Porter
 [@beporter](https://twitter.com/beporter)
 <sub>_(although you shouldn't follow me, you'll be disappointed.)_</sub>
 
-Project Lead and Web Developer
-for Loadsys Web Strategies
+Project Lead & Web Developer at Loadsys
 [loadsys.com](http://loadsys.com)
 
 Slides, Sample Project
