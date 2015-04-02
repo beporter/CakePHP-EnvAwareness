@@ -21,15 +21,36 @@ In this demo, the `APP_ENV` environment variable is read and the value is used t
 
 Any values defined in this second config will be merged into the master configs, allowing individual values to be overridden for specific values of `APP_ENV`.
 
+A third config file named `config/app-local.php` may be created that will not be tracked by the git repository and can be used to further override values for local testing.
+
+
 ### Web Server
 
 1. Visit [http://localhost:8080/](http://localhost:8080/).
+	* Make a note of the header background color and title text.
+1. Open the `config/app.php` file.
+1. Change the hex value of the `Defaults.envFlagColor` key.
+1. Reload the web page.
+	* What color is the header background now?
+1. Open the `config/app-vagrant.php` file.
+1. Change the hex value of the `Defaults.envFlagColor` key.
+1. Reload the web page.
+	* What color is the header background now?
+	* Why is it different now?
+
 
 ### Command Line
 
 1. Log into the VM: `vagrant ssh`.
 1. Check that the environment variable is already set by the user's `.profile` file by running: `echo $APP_ENV`.
+	* What value is displayed?
 1. Move to the web root: `cd /var/www/app`
 1. Run: `bin/cake config_read.config_read Defaults.longName`
+	* Which config file contains the output value that was displayed?
 1. Run: `APP_ENV=prod bin/cake config_read.config_read Defaults.longName`
-
+	* Which config file contains the output value that was displayed this time?
+	* Why was that value used?
+1. Create `config/app-local.php` and define the `Defaults.longName` key in it with a value of your own choosing.
+1. Run: `bin/cake config_read.config_read Defaults.longName` again.
+1. Run: `APP_ENV=prod bin/cake config_read.config_read Defaults.longName` again.
+	* Why is the output the same in both cases now?
