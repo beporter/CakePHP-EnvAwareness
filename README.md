@@ -2,7 +2,9 @@
 
 A sample CakePHP application that will load configuration information based on an environment flag value.
 
-It is meant to accompany this presentation: [Running a CakePHP App in Different Operating Environments](slides/env-aware-cake-apps.md)
+It is meant to accompany this presentation: [Running a CakePHP App in Different Operating Environments](slides/)
+
+The Cake 3 demo app lives in [app/](app/). (There is also a [Cake 2.x](https://github.com/beporter/CakePHP-EnvAwareness/tree/cake-2x/app/) demo branch.)
 
 
 ## The Short Version
@@ -16,7 +18,7 @@ In Apache, this can be accomplished using `SetEnv`:
 # my_apache_vhost.conf
 <VirtualHost *:80>
     ServerName stagingsite.com
-    SetEnv APP_ENV stage
+    SetEnv APP_ENV staging
 </VirtualHost>
 ```
 
@@ -25,7 +27,7 @@ On the command line you can export an environment variable (for use with Cake Sh
 
 ```bash
 # ~/.profile or ~/.bash_profile
-export APP_ENV=stage
+export APP_ENV=staging
 ```
 
 
@@ -49,7 +51,7 @@ try {
 
 The additional code above will load values from the file `config/app-staging.php`.
 
-Assuming the files contained the following:
+Assuming the config files contained the following:
 
 ```php
 // config/app.php
@@ -81,7 +83,7 @@ In your app, you can access a consistently named key and obtain a value appropri
 <head>
 	<style>
 		.navBackgroundColor {
-			background-color: <?php echo Configure::read('EnvSignalColor'); ?>;
+			background-color: <?php echo Configure::read('App.EnvSignalColor'); ?>;
 		}
 	</style>
 </head>
@@ -113,8 +115,8 @@ That's a much better alternative than this:
 
 This same principle can be applied to Cake 2.x and 1.x apps, although there are some things to keep in mind.
 
-* Where Cake 3 unifies all configurations into a single file, `config/app.php`. Cakes 1 & 2 uses multiple config files such as `Config/database.php`, `Config/email.php` and `Config/core.php`. This repo has a `cake-2.x` branch that demonstrates how to adapt the Email and Database configurations to load from `Configure`, making them automatically "environment-aware" and bringing them in-line with Cake 3.
-* `Configure::load()` behaves very differently in Cake 1. It will overwrite keys wholesale, whereas Cakes 2 and 3 will merge keys deeply using `Hash::merge()`. This can have unexpected results in both cases.
+* Where Cake 3 unifies all configurations into a single file, `config/app.php`. Cakes 1 & 2 uses multiple config files such as `Config/database.php`, `Config/email.php` and `Config/core.php`. This repo has a `cake-2x` branch that demonstrates how to adapt the Email and Database configurations to load from `Configure`, making them automatically "environment-aware" and bringing them in-line with Cake 3.
+* **`Configure::load()` behaves very differently in Cake 1.** It will overwrite keys wholesale, whereas Cakes 2 and 3 will merge keys deeply using `Hash::merge()`. This can have unexpected results in both cases.
 
 
 ## License
