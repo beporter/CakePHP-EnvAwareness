@@ -26,6 +26,8 @@ A third config file named `config/app-local.php` may be created that will not be
 
 ### Web Server
 
+@TODO: Move these instructions into home.ctp and replace the bad instructions there.
+
 1. Visit [http://localhost:8080/](http://localhost:8080/).
 	* Make a note of the header background color and title text.
 1. Open the `config/app.php` file.

@@ -22,7 +22,11 @@ slidenumbers: true
 
 ^ The purpose of this talk is to explore a situation that most modern web apps face: That your app will usually have to run in different environments, and its needs may be different in each one.
 
-^ Then I'll outline some approaches (both good and bad) for dealing with that.
+^ I'd like to review some approaches for dealing with that.
+
+^ Then outline some properties of "the best system possible" for solving this particular problem and suggest an implementation that works pretty well to meet them.
+
+^ I'll wrap up with some practical examples and tips.
 
 ^ All examples will reference Cake 3, but are easily applied to Cake 2.x and even Cake 1.x with small modifications.
 
@@ -75,9 +79,9 @@ Who hasn't needed to set different database connection values in development and
 
 ^ To demonstrate what I'm talking about, let's briefly look at database connections.
 
-^ Almost every web application ever developed needs to use a different database connection when the developer is working on their local copy versus when it is running in production.
+^ Almost every web application needs to use a different database connection when the developer is working on a local copy versus when it is running in production.
 
-^ [^xkcd] This is my favorite database joke.
+^ [^xkcd] I'll pause for a second to give you time to read my favorite database joke.
 
 
 ---
@@ -131,7 +135,9 @@ return [
 * They all have different complexity and tradeoffs.
 * Let's start with some common ones...
 
-^ What can we do? Well, there are many ways to approach this problem. Let's take a look at some of the common ones.
+^ What can we do? Well, there are many ways to approach this problem.
+
+^ Let's take a look at some of the common ones.
 
 
 ---
@@ -152,7 +158,7 @@ if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
 
 ^ We can try checking the domain name and doing something different for each match we recognize.
 
-^ And it's one thing when it's a "simple" display string in one of your templates or view files...
+^ Now this isn't too bad when it's a "simple" display string in one of your templates or views...
 
 
 ---
@@ -176,6 +182,8 @@ if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
 	];
 } //...
 ```
+
+^ But if we go back to our all too common database setup,
 
 ^ It's another thing when you're having to repeat big, ...
 
@@ -202,7 +210,7 @@ elseif ($_SERVER['SERVER_NAME'] === 'stage.site.com') {
 } //...
 ```
 
-^ ...only-slightly-different chunks of code...
+^ ...only-slightly-different chunks of code, all over your app to control behavior.
 
 
 ---
@@ -226,7 +234,7 @@ else {
 }
 ```
 
-^ ...all over your app to control behavior.
+^ Yes, that's one big huge if/elseif/else.
 
 
 ---
@@ -257,19 +265,22 @@ config/app.php
 #...
 ```
 
-^ Well, maybe we can avoid some of those problems if we just don't store any of those differing configs in the project repository at all.
+^ Okay, so... maybe we can avoid some of those problems if we just don't store any of those differing configs in the project repository at all.
 
 ^ Let's ignore our `config/app.php` file completely and maintain a copy directly in each environment.
+
+^ This means that when a developer clones the project, they'll have to build an entire `app.php` from scratch with all of the settings the app requires. (Which you should probably document somewhere.)
+
+^ And when you launch your app, you'll have to write out another entire `app.php` file directly on your production server (or servers) with appropriate values.
 
 
 ---
 ## What's wrong with excluding configs from the repo?
 
-:heavy_plus_sign: It's straightforward(?)
 :heavy_plus_sign: No sensitive info in the repo.
 
-
-:heavy_minus_sign: No backups or history.
+:heavy_minus_sign: No definitive list of Configure keys the app requires.
+:heavy_minus_sign: No backups or history, not self-documenting.
 :heavy_minus_sign: Troubleshooting is harder.
 :heavy_minus_sign: Still not DRY.
 :heavy_minus_sign: Still fragile.
@@ -351,9 +362,9 @@ $ cp config/app.staging.php config/app.php
 
 ^ Developers may forget to update an "identical" setting in all copies of the file.
 
-^ As we saw, without automatic tooling in place for deploys, a developer or sysadmin may forget to copy an updated config file into the correct place.
+^ As we saw, without automatic tooling in place for deploys, a developer or sysadmin may forget to copy an updated config file into the correct place, or copy the wrong config. We've left the door open for human error.
 
-^ We're also back to the iss that storing API keys and passwords in the repo might be bad.
+^ We also again the issue that storing API keys and passwords in the repo might be bad.
 
 
 ---
@@ -361,7 +372,7 @@ $ cp config/app.staging.php config/app.php
 
 What are the properties of the _ideal_ system for handling custom configurations per environment?
 
-^ Let's switch gears and talk about that an ideal system would need to look like in order to solve as many of these complications as possible.
+^ Let's switch gears and talk about what an ideal system would need to look like in order to solve as many of these complications as possible.
 
 
 ---
@@ -385,7 +396,7 @@ and a command line env var:
 export APP_ENV=staging
 ```
 
-^ First, we want to isolate detection of the environment to a single "switch"
+^ First, we want to isolate detection of the environment to a single "switch".
 
 ^ This can really be anything that can be defined per-environment, but I prefer an environment variable.
 
@@ -428,7 +439,7 @@ _Config changes must not require more than one role (dev + sysadmin) or be done 
 
 ^ So all (non-sensitive) configs for every known environment must be tracked in source control.
 
-^ This help guarantee that a developer can add or change a config key both where it's declared and where it's used.
+^ This helps guarantee that a developer can add or change a config key both where it's declared and where it's used.
 
 
 ---
@@ -456,9 +467,11 @@ The app must perform logic for loading configs for that environment **at that po
 
 _If the environment detection needs to change in the future, there is only one place in the code to change._
 
-^ We want to keep the code that changes our app's behavior DRY, so if we need to update **how** we change that behavior, it doesn't have to be done in many places all over the app.
+^ We want to keep the code that changes our app's behavior DRY, so if we need to update **how** we change that behavior for each environment, it doesn't have to be done in many places all over the app.
 
-^ So we want the app to check for the environment at one point only, and fully set up the configs for that environment at the same time. From then on, the app will run with that single collection of configs (just with different values).
+^ So we want the app to check for the environment at one point only, and fully set up the configs for that environment at the same time.
+
+^ From then on, the app will run with that single collection of configs (just with different values).
 
 
 ---
@@ -632,7 +645,7 @@ This makes it an ideal mechanism for storing environment-specific settings.
 
 ^ We'll create a new file for each additional environment, and define **only** the values that need to be different from production in each.
 
-^ Then to extend `Configure`s capabilities to include environment awareness, we'll add some code to the bootstrapping process.
+^ Then to extend `Configure`s capabilities to include environment awareness, we'll add some code to the bootstrapping process to load those files.
 
 
 ---
@@ -720,6 +733,7 @@ return [
     'Env' => [
     	'FancyName' => 'Wonderful Application',
     	'Message' => 'This is production',
+    	'HintColor' => '#ffffff',
     ],
 ];
 ```
@@ -740,11 +754,12 @@ return [
     'Env' => [
     	// (Note that we don't change the [FancyName] key.)
     	'Message' => 'This is staging',
+    	'HintColor' => '#ffffcc', // yellow in staging
     ],
 ];
 ```
 
-^ Next, in our "staging" override file, we're going to override the production value for `debug` to turn it on, and we're also going to override our unique message so we can provide a hint to users or admins about the current environment.
+^ Next, in our "staging" override file, we're going to override the production value for `debug` to turn it on, and we're also going to override our unique message and color so we can provide a hint to users or admins about the current environment.
 
 ^ Note that we have **not** overridden the `FancyName` of the app-- it will continue to use the value defined previously in the production config.
 
@@ -780,6 +795,10 @@ Now this example works, and prints a different message depending on the value of
 
 ^ The example here now works as advertised, using an `APP_ENV` environment variable with a recognized value as defined by your server.
 
+^ We've provided a way to hint at our environment in the browser in all non-production instances.
+
+^ We can also temporarily set our own `Env.Message` value in `app-local.php` if we want to test it with a difference character set or emoji or something else locally.
+
 
 ---
 ## How well does this meet the ideal requirements?
@@ -814,6 +833,8 @@ app-local.php
 ```
 
 ^ We're tracking all non-sensitive configs in source control for every environment.
+
+^ We can still scan the `config/` directory and have a pretty good idea of the different places the app needs to run.
 
 ^ And anything that **is** sensitive can be defined in `app-local.php` on each server.
 
@@ -880,7 +901,70 @@ return [
 
 
 ---
-## Example Project
+## Another Example
+
+```php
+// View/Helper/UtilityHelper.php
+
+public function envHint($env = null) {
+	$env = (isset($_SERVER['APP_ENV']) : $_SERVER['APP_ENV'] : null);
+	switch ($env) {
+		case 'vagrant': $css = 'background: #ff9999;'; break;
+		case 'staging': $css = 'background: #e5c627;'; break;
+		       default: $css = '';                     break;
+	}
+	if (!empty($css) && Configure::read('debug') > 0) {
+		return sprintf('<style>.navbar-fixed-top{%s}</style>', $css);
+	} else {
+		return '';
+	}
+}
+```
+
+^ First, I had to get a little "creative" to get this example to fit on the slide and be readable. Don't go all "PSR" on me.
+
+^ Even after switching to the config loading process I just outlined, I wrote this (bad) helper method to assist in signaling the environment to the user sitting in front of the browser.
+
+^ What's bad about this? Lots!
+
+^ I'm using `$_SERVER['APP_ENV']` directly! I'm doing things with static values! I've bound my code to the **values** of the environments! I've hard-coded CSS into the helper function!
+
+^ What does the refactor look like?
+
+
+---
+## Another Example
+
+```php
+// View/Helper/UtilityHelper.php
+
+public function envHint() {
+	$format = (string)Configure::read('Env.Hint.Format');
+	$snippet = (string)Configure::read('Env.Hint.Snippet');
+
+	if (!empty($snippet) && Configure::read('debug') > 0) {
+		return sprintf($format, $snippet);
+	} else {
+		return '';
+	}
+}
+```
+
+^ Move things into Configure! Let **it** worry about the correct values for each environment. We don't have to care about the environments-- we get to just use the Configure values we expect in all of them.
+
+^ One of the design goals was to ensure this never engaged in production, so we keep the `debug` check.
+
+^ But! No more hard-coded `$_SERVER['APP_ENV']` or `prod`, `staging`, `vagrant` etc.
+
+^ We can define a single `format` in the core.php config now, and we only have to specify the correct `snippet`s in `core-staging`, `core-vagrant` etc. So no unnecessary code duplication.
+
+^ Gives us _even better_ flexibility since we can now control the CSS being used completely.
+
+^ The code is cleaner and more readable.
+
+
+---
+## Demo Project
 
 [github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
 
@@ -894,29 +978,74 @@ return [
 
 
 ---
-## Other random points
+## Cake 2.x
 
 * Works in 2.x via `Config/core.php`.
 	* Requires a boilerplate `database.php` and `email.php` that load their configs from `Configure` instead of defining static class properties.
-	* @TODO: Examples to come in the demo repo.
+	* @TODO: Full examples in the demo repo on the `cake-2x` branch.
 
 ^ The sample project also has a `cake-2x` branch that demonstrates the same concepts.
 
 ^ It's slightly more setup since we need to deal with the separate `database.php`, `email.php` and `core.php` files, but the example project includes boilerplate versions of these files that load their configurations using `Configure` instead of the normal process of defining class properties.
  
  
-<!--
+---
+## Cake 2.x: Config
+
 ```php
+// Config/core.php
+
+Configure::write('Datasources', array(
+	'default' => array(
+		'datasource' => 'Database/Mysql',
+		'host' => 'localhost',
+		'login' => 'dbuser',
+		'password' => 'password',
+		'database' => 'my_db',
+	),
+));
+
+Configure::write('EmailTransport', array(
+	'default' => array(
+		'transport' => 'Mail',
+		'from' => 'real-person@site.com',
+		'charset' => 'utf-8',
+		'headerCharset' => 'utf-8',
+		'emailFormat' => 'html',
+	),
+));
+```
+
+^ As a quick preview at how this works in Cake 2, here's a snippet from the `core.php` file.
+
+^ To start, we're defining our database and email configs here. You can use all of the same properties as you would normally, and even define multiple connections beyond the `default` key.
+
+
+---
+## Cake 2.x: Env Loading
+
+```php
+// Config/core.php
+
+// At the end of the file
 $env = getenv('APP_ENV');
-if (is_readable(dirname(__FILE__) . "/core_{$env}.php")) {
-	Configure::load("core_{$env}");
+if (is_readable(dirname(__FILE__) . DS . "core-{$env}.php")) {
+	Configure::load("core-{$env}");
 }
-if (is_readable(dirname(__FILE__) . "/core_local.php")) {
-	Configure::load("core_local");
+if (is_readable(dirname(__FILE__) . DS . 'core-local.php')) {
+	Configure::load('core-local');
 }
 ```
 
+^ Then at the bottom of the file we add the same kind of supplemental loading, again only if the files are found to exist to keep `Configure::load()` from complaining.
+
+
+---
+## Cake 2.x: Boilerplate Database
+
 ```php
+// Config/database.php
+
 class DATABASE_CONFIG {
 	public $default = null;
 	public function __construct() {
@@ -936,7 +1065,19 @@ class DATABASE_CONFIG {
 }
 ```
 
+^ Then to adapt our database.php file, we rewrite it to populate all of its keys from Configure.
+
+^ We'll throw exceptions if the minimum necessary `$default` config is missing as a warning to devs.
+
+^ This file can then just get committed to source control as-is. It will never have to change again for the life of the app, since all of the actual connection strings are defined in core.php now.
+
+
+---
+## Cake 2.x: Boilerplate Email
+
 ```php
+// Config/email.php
+
 class EmailConfig {
 	public $default = array();
 	public function __construct() {
@@ -950,40 +1091,51 @@ class EmailConfig {
 		}
 
 		if (!property_exists($this, 'default') || !is_array($this->default)) {
-			throw new Exception('No `EmailTransport.default` array defined in core.php.');
+			throw new Exception('No `EmailTransport.default` array defined in core.php.');  
 		}
 	}
 }
 ```
--->
+
+^ Same kind of thing with `email.php`. If your app doesn't require at least one valid email config, you can remove the clause that throws the Exception.
+
+^ Again this file is now "static" for all intents and purposes, since the values are in core.php.
+
+^ This is actually another great example of how to move "environment-awareness" out of your app's codebase and into Configure.
 
 
 ---
 ## Other random points
 
-* Even works all the way back in 1.2/1.3.
+* This process even works all the way back in 1.2/1.3.
 	* **Mind `Configure::load()` in 1.x**: It overwrites entire keys instead of merging.
 	* No examples _(get away from 1.x please)_, but you can ask me about it.
 
-* Make sure your cron jobs execute with the correct environment set.
-
 ^ This approach does work in Cake 1.2 and 1.3 apps as well, but with a very important caveat about how Configure loads additional configs that you need to keep in mind.
 
-^ I'm not providing examples because seriously, do your best to get away from Cake 1.x.
+^ Basically, Configure::load() replaces keys instead of merging them, so we lose the ability to depend on the Production configs as much as we can in Cake 2 and 3.
+
+^ I'm not providing examples because seriously, you should be doing your best to get away from Cake 1.x at this point.
 
 ^ That said, come talk to me about it if you're curious about the differences.
 
 
 ---
-@TODO:
+## Parting Tips
 
-* Example: styleForEnv()-ish case
+* Visibly mark your non-production environments.
+* Try to standardize on a single environment switch.
+* Requiring an env switch can be a gotcha for "in between" cases.
+* Make sure your cron jobs execute with the correct environment set.
 
-^ "naive" way is to `switch()` on the actual value of the env var itself (bad cause code is coupled to the actual VALUES of the environment variable). Better way is to store the actual CSS changes in Configure and just fetch them (easier to adapt too!)
 
-* Example: Passing an environment to Javascript (Ember) in default layout.
+^ I recommend exposing your environment in the browser, _somehow_. Change the background color of your admin portal for every environment except for production, so you can tell at a glance if your env-switching is working.
 
-^ (Put a "token" value in Configure to represent the environment and set that in a <meta> tag.)
+^ Try to use a consistent switch method and key name. This is a convention over configuration thing. When you're trying to figure out why env switching isn't working, you should have to check as few places as possible.
+
+^ The fact that other environments require an artificial env switch to be configured can be a gotcha, especially for "in between" spots like staging. In practice, production doesn't require anything special, and if you use vagrant, you can configure your VM to ship with the necessary settings by default, but your project readme or documentation should still explain what the switch is and how to set it so it doesn't catch anyone off guard.
+
+^ Along the same lines, if you're running Cake shells as cron jobs, make sure you're setting the environment flag in a way that will be present in cron. Again, this isn't a problem in production where it matters most, but you'll specifically forget to think about this in other environments for that exact reason.
 
 
 ---
@@ -991,12 +1143,12 @@ class EmailConfig {
 
 Brian Porter
 [@beporter](https://twitter.com/beporter)
-<sub>_(you shouldn't follow me- you'll be disappointed.)_</sub>
+<sub>_(you probably shouldn't follow me- you'll be disappointed.)_</sub>
 
 Project Lead & Web Developer at Loadsys
 [loadsys.com](http://loadsys.com)
 
-Slides, Sample Project
+Slides (with speaker notes) & Demo Project
 [github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
 
 ^ That's it. I hope this talk has given you some things to think about.
