@@ -1125,8 +1125,9 @@ class EmailConfig {
 
 * Visibly mark your non-production environments.
 * Try to standardize on a single environment switch.
-* Requiring an env switch can be a gotcha for "in between" cases.
+* Requiring an env switch can be a gotcha for "in between" environments.
 * Make sure your cron jobs execute with the correct environment set.
+* Translations and environments get complicated. (Aka, the `__()` function.)
 
 
 ^ I recommend exposing your environment in the browser, _somehow_. Change the background color of your admin portal for every environment except for production, so you can tell at a glance if your env-switching is working.
@@ -1136,6 +1137,8 @@ class EmailConfig {
 ^ The fact that other environments require an artificial env switch to be configured can be a gotcha, especially for "in between" spots like staging. In practice, production doesn't require anything special, and if you use vagrant, you can configure your VM to ship with the necessary settings by default, but your project readme or documentation should still explain what the switch is and how to set it so it doesn't catch anyone off guard.
 
 ^ Along the same lines, if you're running Cake shells as cron jobs, make sure you're setting the environment flag in a way that will be present in cron. Again, this isn't a problem in production where it matters most, but you'll specifically forget to think about this in other environments for that exact reason.
+
+^ And finally, in Cake 2, it's possible to pre-translate any end-user-visible string values you want to store in Configure and have them be env-aware by wrapping your value in the double-underscore method right where they are declared in `core.php`. This doesn't work quite as seamlessly in Cake 3 any more because the Cache will not yet be configured if you try to use `__()` in your `app.php` file. This requires getting a bit more inventive and I haven't worked out a solid pattern I can recommend for addressing that yet. Let me know if you do!
 
 
 ---

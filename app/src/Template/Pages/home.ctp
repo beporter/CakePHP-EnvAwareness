@@ -21,8 +21,12 @@ $this->layout = false;
     	.envSignal {
     		background-color: <?= Configure::read('Defaults.envFlagColor'); ?>;
     	}
+    	.checks.environment {
+    		background-color: #F0DFF0;
+    	}
     </style>
 </head>
+
 <body class="home">
     <header class="envSignal">
         <div class="header-image">
@@ -30,6 +34,7 @@ $this->layout = false;
             <h1><?= Configure::read('Defaults.longName') ?></h1>
         </div>
     </header>
+
     <div id="content">
         <?php
         if (Configure::read('debug')):
@@ -117,12 +122,42 @@ $this->layout = false;
         </div>
 
         <div class="row">
-            <div class="columns large-12">
-                <h3>Editing this Page</h3>
+            <div class="columns large-12 environment checks">
+                <h3>Environment Experiments</h3>
 
 				<p>The heading on this page will change depending on the value of the <code>APP_ENV</code> environment variable set on the server.</p>
 
-				<p>To experiment with this:</p>
+				<h4>Basic Experiments</h4>
+
+				<ul>
+					<li>Open the <code>config/app.php</code> file.
+
+					<li>Change the hex value of the <code>Defaults.envFlagColor</code> key and save the file.
+
+					<li>Reload the web page.
+						<ul>
+							<li>What color is the header background now?
+						</ul>
+
+					<li>Open the <code>config/app-vagrant.php</code> file.
+
+					<li>Change the hex value of the <code>Defaults.envFlagColor</code> key.
+
+					<li>Reload the web page.
+						<ul>
+							<li>What color is the header background now?
+							<li>Why is it different now?
+						</ul>
+
+					<li>Back in <code>config/app.php</code>, change the hex value of the <code>Defaults.envFlagColor</code> key again and save the file.
+						<ul>
+							<li>What color is the header background now?
+							<li>Why didn't it change?
+						</ul>
+				</ul>
+
+
+				<h4>Advanced Experiments</h4>
 
 				<ul>
 					<li>Create a file <code>app/config/app-demo.php</code> and place this code in it:
@@ -140,24 +175,37 @@ EOD
 ) ?>
 						</pre>
 
+					<li>Connect to the vagrant VM's command line by running: <code>vagrant ssh</code>
+
 					<li>
-						<p>Change the <code>SetEnv APP_ENV vagrant</code> line in the VM's <code>/etc/apache2/sites-available/cake-env-awareness.conf</code> file to <code>SetEnv APP_ENV demo</code>
+						<p>In the VM's <code>/etc/apache2/sites-available/cake-env-awareness.conf</code> file, change the <code>SetEnv APP_ENV vagrant</code> line to <code>SetEnv APP_ENV demo</code>
 
-						<p>(This command will perform the substitution for you when run in the VM: <code>sudo sed -i'' 's/SetEnv APP_ENV vagrant/SetEnv APP_ENV demo/' /etc/apache2/sites-enabled/cake-env-awareness.conf</code>)
+						<p>(This command will perform the substitution for you when run in the VM:<br>
+						<code>sudo sed -i'' 's/SetEnv APP_ENV vagrant/SetEnv APP_ENV demo/' /etc/apache2/sites-enabled/cake-env-awareness.conf</code>)
 
-					<li>Restart apache using <code>sudo service apache2 restart</code>.
+					<li>Reload apache's configs using <code>sudo service apache2 reload</code>.
 
-					<li>Reload the page. The output from <code>Configure::read('Defaults.longName')</code> will have changed to reflect the new override value.
+					<li>Reload this page in your browser.
+						<ul>
+							<li>The banner output from <code>Configure::read('Defaults.longName')</code> will have changed to reflect the new override value.
+						</ul>
 
-					<li>After you do this, you'll find that the &quot;Database Connection&quot; check above will start failing. This is because no database connection settings are defined in your <code>app-demo.php</code> config file that override the production settings from <code>app.php</code>.
+					<li>Did you notice that the &quot;Database Connection&quot; check above started failing?
+						<ul>
+							<li>This is because no database connection settings are defined in your <code>app-demo.php</code> config file that override the production settings from <code>app.php</code>.
+							<li>Try copying the `Datasources` segment from <code>config/app-vagrant.php</code> into <code>config/app-demo.php</code> and reloading this page again.
+						</ul>
 
-					<li>Continue to experiment with adding and overriding values in the app's config files on your own. What happens if you try to override an array of values?
+					<li>Continue to experiment with adding and overriding values in the app's config files on your own. What happens if you try to override an entire array of values?
 				</ul>
             </div>
         </div>
 
     </div>
+
     <footer>
+    	<br>
+    	<a href="https://github.com/beporter/CakePHP-EnvAwareness">CakePHP-EnvAwareness</a>. Brian Porter, 2015, <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Code released under the <a href="http://opensource.org/licenses/MIT">MIT license</a>.
     </footer>
 </body>
 </html>

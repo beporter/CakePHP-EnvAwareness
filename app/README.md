@@ -26,19 +26,8 @@ A third config file named `config/app-local.php` may be created that will not be
 
 ### Web Server
 
-@TODO: Move these instructions into home.ctp and replace the bad instructions there.
-
 1. Visit [http://localhost:8080/](http://localhost:8080/).
-	* Make a note of the header background color and title text.
-1. Open the `config/app.php` file.
-1. Change the hex value of the `Defaults.envFlagColor` key.
-1. Reload the web page.
-	* What color is the header background now?
-1. Open the `config/app-vagrant.php` file.
-1. Change the hex value of the `Defaults.envFlagColor` key.
-1. Reload the web page.
-	* What color is the header background now?
-	* Why is it different now?
+1. Follow the instructions in the **Environment Experiments** section of the app's homepage.
 
 
 ### Command Line
