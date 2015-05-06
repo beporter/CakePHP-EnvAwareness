@@ -4,7 +4,7 @@ A sample CakePHP application that will load configuration information based on a
 
 It is meant to accompany this presentation: [Running a CakePHP App in Different Operating Environments](slides/)
 
-The Cake 3 demo app lives in [app/](app/). (There is also a [Cake 2.x](https://github.com/beporter/CakePHP-EnvAwareness/tree/cake-2x/app/) demo branch.)
+The Cake 3 demo app lives in [app/](app/).
 
 
 ## The Short Version
@@ -117,6 +117,13 @@ This same principle can be applied to Cake 2.x and 1.x apps, although there are 
 
 * Where Cake 3 unifies all configurations into a single file, `config/app.php`. Cakes 1 & 2 uses multiple config files such as `Config/database.php`, `Config/email.php` and `Config/core.php`. This repo has a `cake-2x` branch that demonstrates how to adapt the Email and Database configurations to load from `Configure`, making them automatically "environment-aware" and bringing them in-line with Cake 3.
 * **`Configure::load()` behaves very differently in Cake 1.** It will overwrite keys wholesale, whereas Cakes 2 and 3 will merge keys deeply using `Hash::merge()`. This can have unexpected results in both cases.
+
+There is a [Cake 2.x](https://github.com/beporter/CakePHP-EnvAwareness/tree/cake-2x/app/) branch available that demonstrates the necessary changes.
+
+
+## Feedback?
+
+This is GitHub: Feel free to [open an issue](https://github.com/beporter/CakePHP-EnvAwareness/issues).
 
 
 ## License

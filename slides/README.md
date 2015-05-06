@@ -22,18 +22,17 @@ This talk covers how to make your CakePHP app adapt its behavior to the environm
 
 ## Info
 
-Brian Porter
-[@beporter](https://twitter.com/beporter)
-<sub>_(although you shouldn't follow me, you'll be disappointed.)_</sub>
+Brian Porter<br>
+[@beporter](https://twitter.com/beporter)<br>
+<sub>_(you probably shouldn't follow me- you'll be disappointed.)_</sub>
 
-Project Lead & Web Developer at Loadsys
-[http://loadsys.com](http://loadsys.com)
 
-[env-aware-cake-apps.md](https://github.com/beporter/CakePHP-EnvAwareness/tree/master/slides/env-aware-cake-apps.md) ([pdf](https://github.com/beporter/CakePHP-EnvAwareness/tree/master/slides/env-aware-cake-apps.pdf)
-)
+Project Lead & Web Developer at Loadsys<br>
+[loadsys.com](http://loadsys.com)
 
-[https://github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
 
+Slides (with speaker notes) & Demo Project<br>
+[github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
 
 
 ## Resources
