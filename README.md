@@ -4,7 +4,7 @@ A sample CakePHP application that will load configuration information based on a
 
 It is meant to accompany this presentation: [Running a CakePHP App in Different Operating Environments](slides/)
 
-The Cake 3 demo app lives in [app/](app/).
+The Cake 3 demo app lives in [app-cake3/](app-cake3/).
 
 
 ## The Short Version
