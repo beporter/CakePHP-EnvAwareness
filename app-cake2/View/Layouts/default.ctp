@@ -12,8 +12,7 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 <head>
 	<?php echo $this->Html->charset(); ?>
 	<title>
-		<?php echo $cakeDescription ?>:
-		<?php echo $this->fetch('title'); ?>
+		<?php echo Configure::read('Defaults.shortName'); ?>
 	</title>
 	<?php
 		echo $this->Html->meta('icon');
@@ -24,11 +23,20 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 		echo $this->fetch('css');
 		echo $this->fetch('script');
 	?>
+    <style>
+    	.envSignal,
+    	.envSignal h1 {
+    		background-color: <?php echo Configure::read('Defaults.envFlagColor'); ?> !important;
+    	}
+    	li {
+    		margin-bottom: 0.5em;
+    	}
+    </style>
 </head>
 <body>
 	<div id="container">
-		<div id="header">
-			<h1><?php echo $this->Html->link($cakeDescription, 'http://cakephp.org'); ?></h1>
+		<div id="header" class="envSignal">
+			<h1><?php echo Configure::read('Defaults.longName'); ?></h1>
 		</div>
 		<div id="content">
 

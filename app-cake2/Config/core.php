@@ -22,7 +22,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 2);
+	Configure::write('debug', 0); // Always start with debug off. MUST be overriden in other envs!
 
 /**
  * Configure the Error handler used to handle errors for your application. By default
@@ -363,3 +363,113 @@ Cache::config('_cake_model_', array(
 	'serialize' => ($engine === 'File'),
 	'duration' => $duration
 ));
+
+/**
+ * DB configuration
+ *
+ * The default (production) configuration is defined here. It will be used
+ * when no APP_ENV is set. Must at least define a `default` connection.
+ */
+Configure::write('Datasources', array(
+	'default' => array(
+		'datasource' => 'Database/Mysql',
+		'persistent' => false,
+		'host' => 'localhost',
+		'login' => 'my_app',
+		'password' => 'secret',
+		'database' => 'my_app',
+		//'prefix' => '',
+		//'encoding' => 'utf8',
+	),
+));
+
+/**
+ * Email Configuration
+ *
+ * `EmailTransport` is used to populate the Config/email.php class properties.
+ * The entries below will be used in production. Individual settings can
+ * be overridden in core-vagrant, etc. At least a [default] key must be
+ * defined.
+ */
+Configure::write('EmailTransport', array(
+	'default' => array(
+		'transport' => 'Mail', // Use web server's local mail routing.
+		'from' => 'you@localhost',
+		'charset' => 'utf-8',
+		'headerCharset' => 'utf-8',
+		'emailFormat' => 'html',
+		'log' => false,
+		//'sender' => null,
+		//'to' => null,
+		//'cc' => null,
+		//'bcc' => null,
+		//'replyTo' => null,
+		//'readReceipt' => null,
+		//'returnPath' => null,
+		//'messageId' => true,
+		//'subject' => null,
+		//'message' => null,
+		//'headers' => null,
+		//'viewRender' => null,
+		//'template' => false,
+		//'layout' => false,
+		//'viewVars' => null,
+		//'attachments' => null,
+		//'host' => 'localhost',
+		//'port' => 25,
+		//'timeout' => 30,
+		//'username' => 'user',
+		//'password' => 'secret',
+		//'client' => null,
+	),
+));
+
+/**
+ * Default Site Configuration
+ *
+ * Configure some generic properties of the app.
+ */
+Configure::write('Defaults', array(
+	'longName' => 'Demo EnvAwareness App',
+	'shortName' => 'EnvAwareDemo',
+	'envFlagColor' => '#15848F',
+));
+
+
+
+/**
+ * Load environment-specific overrides.
+ *
+ *   **THIS SHOULD BE THE LAST BLOCK IN YOUR `core.php` FILE.**
+ */
+
+/**
+ * Environment Overrides
+ *
+ * File such as `Config/core-staging.php` can be created to match the
+ * `APP_ENV` environment variable and must contain a `$config = array(...);`
+ * definition in them to override any values defined here in `core.php` or in
+ * `bootstrap.php`. Any configuration changes that are environment-specific
+ * should be made in the appropriate file.
+ */
+$env = getenv('APP_ENV');
+if (is_readable(dirname(__FILE__) . DS . "core-{$env}.php")) {
+	Configure::load("core-{$env}");
+}
+
+/**
+ * Local Overrides
+ *
+ * Allows a developer to customize their local config as needed for testing
+ * by placing their definitions in an (untracked) `Config/core-local.php`
+ * file.
+ *
+ * Can also be used in any environment to provide "sensitive" values such
+ * as passwords or API keys that should not be committed to source control.
+ *
+ * Any overrides defined here will take precendence over both the production
+ * configs defined above **and** any environmental overrides.
+ */
+if (is_readable(dirname(__FILE__) . DS . 'core-local.php')) {
+	Configure::load('core-local');
+}

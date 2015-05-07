@@ -5,16 +5,8 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  */
 
-if (!Configure::read('debug')):
-	throw new NotFoundException();
-endif;
-
 App::uses('Debugger', 'Utility');
 ?>
-<h2><?php echo __d('cake_dev', 'Release Notes for CakePHP %s.', Configure::version()); ?></h2>
-<p>
-	<a href="http://cakephp.org/changelogs/<?php echo Configure::version(); ?>"><?php echo __d('cake_dev', 'Read the changelog'); ?> </a>
-</p>
 <?php
 if (Configure::read('debug') > 0):
 	Debugger::checkSecurityKeys();
@@ -147,85 +139,76 @@ if (isset($filePresent)):
 	?>
 </p>
 
-<h3><?php echo __d('cake_dev', 'Editing this Page'); ?></h3>
-<p>
+<div class="row">
+	<div class="columns large-12 environment checks">
+		<h2>Environment Experiments</h2>
+
+		<p>The heading on this page will change depending on the value of the <code>APP_ENV</code> environment variable set on the server.</p>
+
+		<h3>Basic Experiments</h3>
+
+		<ul>
+			<li>Open the <code>Config/core.php</code> file.
+
+			<li>Change the hex value of the <code>Defaults.envFlagColor</code> key and save the file.
+
+			<li>Reload the web page.
+				<ul>
+					<li>What color is the header background now?
+				</ul>
+
+			<li>Open the <code>Config/core-vagrant.php</code> file.
+
+			<li>Change the hex value of the <code>Defaults.envFlagColor</code> key.
+
+			<li>Reload the web page.
+				<ul>
+					<li>What color is the header background now?
+					<li>Why is it different now?
+				</ul>
+		</ul>
+
+
+		<h3>Advanced Experiments</h3>
+
+		<ul>
+			<li>Create a file <code>app/Config/core-demo.php</code> and place this code in it:
+				<pre>
+<?php echo h(<<<EOD
 <?php
-echo __d('cake_dev', 'To change the content of this page, edit: %s.<br />
-To change its layout, edit: %s.<br />
-You can also add some CSS styles for your pages at: %s.',
-	'APP/View/Pages/home.ctp', 'APP/View/Layouts/default.ctp', 'APP/webroot/css');
-?>
-</p>
+\$config = array(
+	'debug' => true,
+	'Defaults' => array(
+		'longName' => 'My Own Demo Env',
+		'envFlagColor' => '#2244AA',
+	),
+);
+EOD
+); ?>
+				</pre>
 
-<h3><?php echo __d('cake_dev', 'Getting Started'); ?></h3>
-<p>
-	<?php
-		echo $this->Html->link(
-			sprintf('<strong>%s</strong> %s', __d('cake_dev', 'New'), __d('cake_dev', 'CakePHP 2.0 Docs')),
-			'http://book.cakephp.org/2.0/en/',
-			array('target' => '_blank', 'escape' => false)
-		);
-	?>
-</p>
-<p>
-	<?php
-		echo $this->Html->link(
-			__d('cake_dev', 'The 15 min Blog Tutorial'),
-			'http://book.cakephp.org/2.0/en/tutorials-and-examples/blog/blog.html',
-			array('target' => '_blank', 'escape' => false)
-		);
-	?>
-</p>
+			<li>Connect to the vagrant VM's command line by running: <code>vagrant ssh</code>
 
-<h3><?php echo __d('cake_dev', 'Official Plugins'); ?></h3>
-<p>
-<ul>
-	<li>
-		<?php echo $this->Html->link('DebugKit', 'https://github.com/cakephp/debug_kit') ?>:
-		<?php echo __d('cake_dev', 'provides a debugging toolbar and enhanced debugging tools for CakePHP applications.'); ?>
-	</li>
-	<li>
-		<?php echo $this->Html->link('Localized', 'https://github.com/cakephp/localized') ?>:
-		<?php echo __d('cake_dev', 'contains various localized validation classes and translations for specific countries'); ?>
-	</li>
-</ul>
-</p>
+			<li>
+				<p>In the VM's <code>/etc/apache2/sites-available/cake-env-awareness.conf</code> file, change the <code>SetEnv APP_ENV vagrant</code> line to <code>SetEnv APP_ENV demo</code>
 
-<h3><?php echo __d('cake_dev', 'More about CakePHP'); ?></h3>
-<p>
-<?php echo __d('cake_dev', 'CakePHP is a rapid development framework for PHP which uses commonly known design patterns like Active Record, Association Data Mapping, Front Controller and MVC.'); ?>
-</p>
-<p>
-<?php echo __d('cake_dev', 'Our primary goal is to provide a structured framework that enables PHP users at all levels to rapidly develop robust web applications, without any loss to flexibility.'); ?>
-</p>
+				<p>(This command will perform the substitution for you when run in the VM:<br>
+				<code>sudo sed -i'' 's/SetEnv APP_ENV vagrant/SetEnv APP_ENV demo/' /etc/apache2/sites-enabled/cake-env-awareness.conf</code>)
 
-<ul>
-	<li><a href="http://cakephp.org">CakePHP</a>
-	<ul><li><?php echo __d('cake_dev', 'The Rapid Development Framework'); ?></li></ul></li>
-	<li><a href="http://book.cakephp.org"><?php echo __d('cake_dev', 'CakePHP Documentation'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Your Rapid Development Cookbook'); ?></li></ul></li>
-	<li><a href="http://api.cakephp.org"><?php echo __d('cake_dev', 'CakePHP API'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Quick API Reference'); ?></li></ul></li>
-	<li><a href="http://bakery.cakephp.org"><?php echo __d('cake_dev', 'The Bakery'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Everything CakePHP'); ?></li></ul></li>
-	<li><a href="http://plugins.cakephp.org"><?php echo __d('cake_dev', 'CakePHP Plugins'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'A comprehensive list of all CakePHP plugins created by the community'); ?></li></ul></li>
-	<li><a href="http://community.cakephp.org"><?php echo __d('cake_dev', 'CakePHP Community Center'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Everything related to the CakePHP community in one place'); ?></li></ul></li>
-	<li><a href="https://groups.google.com/group/cake-php"><?php echo __d('cake_dev', 'CakePHP Google Group'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Community mailing list'); ?></li></ul></li>
-	<li><a href="irc://irc.freenode.net/cakephp">irc.freenode.net #cakephp</a>
-	<ul><li><?php echo __d('cake_dev', 'Live chat about CakePHP'); ?></li></ul></li>
-	<li><a href="https://github.com/cakephp/"><?php echo __d('cake_dev', 'CakePHP Code'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Find the CakePHP code on GitHub and contribute to the framework'); ?></li></ul></li>
-	<li><a href="https://github.com/cakephp/cakephp/issues"><?php echo __d('cake_dev', 'CakePHP Issues'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'CakePHP Issues'); ?></li></ul></li>
-	<li><a href="https://github.com/cakephp/cakephp/wiki#roadmaps"><?php echo __d('cake_dev', 'CakePHP Roadmaps'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'CakePHP Roadmaps'); ?></li></ul></li>
-	<li><a href="http://training.cakephp.org"><?php echo __d('cake_dev', 'Training'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Join a live session and get skilled with the framework'); ?></li></ul></li>
-	<li><a href="http://cakefest.org"><?php echo __d('cake_dev', 'CakeFest'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Don\'t miss our annual CakePHP conference'); ?></li></ul></li>
-	<li><a href="http://cakefoundation.org"><?php echo __d('cake_dev', 'Cake Software Foundation'); ?> </a>
-	<ul><li><?php echo __d('cake_dev', 'Promoting development related to CakePHP'); ?></li></ul></li>
-</ul>
+			<li>Reload apache's configs using <code>sudo service apache2 reload</code>
+
+			<li>Reload this page in your browser.
+				<ul>
+					<li>The banner output from <code>Configure::read('Defaults.longName')</code> will have changed to reflect the new override value.
+				</ul>
+
+			<li>Did you notice that the &quot;Database Connection&quot; check above started failing?
+				<ul>
+					<li>This is because no database connection settings are defined in your <code>app-demo.php</code> config file that override the production settings from <code>core.php</code>.
+					<li>Try copying the `Datasources` segment from <code>Config/core-vagrant.php</code> into <code>Config/core-demo.php</code> and reloading this page again.
+				</ul>
+
+			<li>Continue to experiment with adding and overriding values in the app's config files on your own. What happens if you try to override an entire array of values?
+		</ul>
+	</div>
+</div>
