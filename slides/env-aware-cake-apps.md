@@ -982,9 +982,9 @@ public function envHint() {
 
 * Works in 2.x via `Config/core.php`.
 	* Requires a boilerplate `database.php` and `email.php` that load their configs from `Configure` instead of defining static class properties.
-	* @TODO: Full examples in the demo repo on the `cake-2x` branch.
+	* Full examples in the demo repo in the `app-cake2` branch.
 
-^ The sample project also has a `cake-2x` branch that demonstrates the same concepts.
+^ The sample project also has a Cake 2 demo app that demonstrates the same concepts.
 
 ^ It's slightly more setup since we need to deal with the separate `database.php`, `email.php` and `core.php` files, but the example project includes boilerplate versions of these files that load their configurations using `Configure` instead of the normal process of defining class properties.
  
