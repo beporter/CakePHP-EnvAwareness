@@ -192,8 +192,8 @@ EOD
 			<li>
 				<p>In the VM's <code>/etc/apache2/sites-available/cake-env-awareness.conf</code> file, change the <code>SetEnv APP_ENV vagrant</code> line to <code>SetEnv APP_ENV demo</code>
 
-				<p>(This command will perform the substitution for you when run in the VM:<br>
-				<code>sudo sed -i'' 's/SetEnv APP_ENV vagrant/SetEnv APP_ENV demo/' /etc/apache2/sites-enabled/cake-env-awareness.conf</code>)
+				<p>This command will perform the substitution for you when run in the VM:<br>
+				<code>sudo sed -i'' 's/SetEnv APP_ENV vagrant/SetEnv APP_ENV demo/' /etc/apache2/sites-enabled/cake-env-awareness.conf</code>
 
 			<li>Reload apache's configs using <code>sudo service apache2 reload</code>
 
