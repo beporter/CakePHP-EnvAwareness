@@ -118,7 +118,7 @@ This same principle can be applied to Cake 2.x and 1.x apps, although there are 
 * Where Cake 3 unifies all configurations into a single file, `config/app.php`. Cakes 1 & 2 uses multiple config files such as `Config/database.php`, `Config/email.php` and `Config/core.php`. This repo has a `cake-2x` branch that demonstrates how to adapt the Email and Database configurations to load from `Configure`, making them automatically "environment-aware" and bringing them in-line with Cake 3.
 * **`Configure::load()` behaves very differently in Cake 1.** It will overwrite keys wholesale, whereas Cakes 2 and 3 will merge keys deeply using `Hash::merge()`. This can have unexpected results in both cases.
 
-There is a [Cake 2.x](https://github.com/beporter/CakePHP-EnvAwareness/tree/cake-2x/app/) branch available that demonstrates the necessary changes.
+There is a [Cake 2.x](app-cake2/) demo app available that demonstrates the necessary changes.
 
 
 ## Feedback?
