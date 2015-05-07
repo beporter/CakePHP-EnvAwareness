@@ -1,0 +1,99 @@
+Vagrant.configure(2) do |config|
+  config.vm.box = "hashicorp/precise64"
+
+  config.vm.hostname = "cakephp-env-awareness"
+
+  config.vm.network "private_network", ip: "192.168.133.7"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 1080, host: 1080
+
+  config.vm.synced_folder ".", "/var/www/app-cake2", :mount_options => ["dmode=777", "fmode=666"]
+
+  config.vm.provider :virtualbox do |virtualbox|
+    virtualbox.customize ["modifyvm", :id, "--memory", 512]
+    virtualbox.customize ["modifyvm", :id, "--name", "cakephp-env-awareness"]
+    virtualbox.gui = false # Set to true to enable the GUI for debugging.
+  end
+
+  config.vm.provider "vmware_fusion" do |v|
+    v.vmx["memsize"] = 512
+    v.vmx["displayName"] = "cakephp-env-awareness"
+    v.gui = false # Set to true to enable the GUI for debugging.
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+
+echo "## Installing dependencies."
+sudo apt-get update -y
+sudo apt-get install -y software-properties-common python-software-properties build-essential libsqlite3-dev
+sudo apt-add-repository ppa:brightbox/ruby-ng -y
+sudo add-apt-repository -y ppa:ondrej/php5-5.6
+
+sudo apt-get update -y
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password password'
+sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password password'
+sudo apt-get install -y mysql-server apache2 php5 php5-curl php5-intl php5-mcrypt php5-mysql ruby1.9.3
+
+
+echo "## Installing Mailcatcher."
+sudo gem install mailcatcher
+
+sudo tee /etc/init/mailcatcher.conf <<-'EOINIT'
+	description "Mailcatcher"
+	start on runlevel [2345]
+	stop on runlevel [!2345]
+	respawn
+	exec /usr/bin/env $(which mailcatcher) --foreground --http-ip=0.0.0.0
+
+EOINIT
+
+sudo service mailcatcher start
+
+
+echo "## Setting app environment."
+echo "APP_ENV=vagrant" >> /home/vagrant/.profile
+
+
+echo "## Setting up Apache virtual host."
+sudo tee /etc/apache2/sites-available/cake-env-awareness.conf <<-'EOCONF'
+<VirtualHost *:80>
+	ServerName cake-env-awareness.local
+	ServerAdmin webmaster@localhost
+	ErrorLog \${APACHE_LOG_DIR}/env-awareness_error.log
+	CustomLog \${APACHE_LOG_DIR}/env-awarenessaccess.log combined
+
+	SetEnv APP_ENV vagrant
+
+	DocumentRoot /var/www/app-cake2
+	<Directory /var/www/app-cake2>
+		Options -Indexes
+		AllowOverride All
+		Require all granted
+	</Directory>
+</VirtualHost>
+
+EOCONF
+
+sudo a2ensite cake-env-awareness
+sudo a2dissite 000-default
+sudo a2enmod env rewrite
+sudo service apache2 restart
+
+
+echo "## Setting up MySQL databases, users and passwords."
+mysql -u root -p'password' mysql <<-'EOSQL'
+	-- Create the default database WE expect.
+	CREATE DATABASE IF NOT EXISTS `vagrant` DEFAULT CHARACTER SET 'utf8';
+	GRANT ALL ON `vagrant`.* TO "vagrant"@"%" IDENTIFIED BY "vagrant";
+
+	-- Create the testing database we expect.
+	CREATE DATABASE IF NOT EXISTS `vagrant_test` DEFAULT CHARACTER SET 'utf8';
+	GRANT ALL ON `vagrant_test`.* TO "vagrant"@"%" IDENTIFIED BY "vagrant";
+
+	-- Flush all the things.
+	FLUSH TABLES;
+	FLUSH PRIVILEGES;
+EOSQL
+
+  SHELL
+end

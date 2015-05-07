@@ -1,0 +1,16 @@
+# Cake
+/tmp/*
+
+# Composer
+/Vendor/*
+!/Vendor/empty
+/Plugin/DebugKit
+/Plugin/Migrations
+/Plugin/ConfigRead
+
+# Vagrant
+/.vagrant/*
+
+# We want to track all `Config/core-*.php` files
+# EXCEPT the local override file.
+/Config/core-local.php
