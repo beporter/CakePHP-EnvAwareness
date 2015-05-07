@@ -1,5 +1,14 @@
 <?php
+/**
+ * This is an environment-specific core configuration file.
+ *
+ * It contains vagrant-specific overrides for the common config settings
+ * in `config/app.php`. Only items that must truly be different from the
+ * master config should be added here.
+ */
+
 return [
+
     /**
      * Enable debugging in development environments.
      */

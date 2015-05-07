@@ -148,12 +148,6 @@ $this->layout = false;
 							<li>What color is the header background now?
 							<li>Why is it different now?
 						</ul>
-
-					<li>Back in <code>config/app.php</code>, change the hex value of the <code>Defaults.envFlagColor</code> key again and save the file.
-						<ul>
-							<li>What color is the header background now?
-							<li>Why didn't it change?
-						</ul>
 				</ul>
 
 
@@ -183,7 +177,7 @@ EOD
 						<p>(This command will perform the substitution for you when run in the VM:<br>
 						<code>sudo sed -i'' 's/SetEnv APP_ENV vagrant/SetEnv APP_ENV demo/' /etc/apache2/sites-enabled/cake-env-awareness.conf</code>)
 
-					<li>Reload apache's configs using <code>sudo service apache2 reload</code>.
+					<li>Reload apache's configs using <code>sudo service apache2 reload</code>
 
 					<li>Reload this page in your browser.
 						<ul>

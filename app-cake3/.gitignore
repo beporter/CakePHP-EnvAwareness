@@ -1,6 +1,11 @@
-/vendor/*
+# Cake
 /tmp/*
 /logs/*
+
+# Composer
+/vendor/*
+
+# Vagrant
 /.vagrant/*
 
 # We want to track all `config/app-*.php` files

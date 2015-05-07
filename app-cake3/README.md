@@ -35,7 +35,7 @@ A third config file named `config/app-local.php` may be created that will not be
 1. Log into the VM: `vagrant ssh`.
 1. Check that the environment variable is already set by the user's `.profile` file by running: `echo $APP_ENV`.
 	* What value is displayed?
-1. Move to the web root: `cd /var/www/app`
+1. Move to the web root: `cd /var/www/app-cake3`
 1. Run: `bin/cake config_read.config_read Defaults.longName`
 	* Which config file contains the output value that was displayed?
 1. Run: `APP_ENV=prod bin/cake config_read.config_read Defaults.longName`
