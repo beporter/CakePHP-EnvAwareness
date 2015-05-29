@@ -299,7 +299,7 @@ config/app.php
 
 
 ---
-## :x: Store individual config files in the repo :x:
+## :x: Store individual config files in repo :x:
 
 ```bash
 # Access the server
@@ -376,7 +376,7 @@ What are the properties of the _ideal_ system for handling custom configurations
 
 
 ---
-## A single "switch" **from** the environment defines it
+## A single "switch" _from_ the environment defines it
 
 Example using Apache's `SetEnv`:
 
@@ -427,9 +427,9 @@ _Define your own "independently controllable" environment switch to maintain con
 ---
 ## All non-sensitive config values are tracked
 
-All environment configs (except those deemed "sensitive") must be tracked in the repo with the code that utilizes them.
+All environment configs (except those deemed "sensitive") must be tracked in the repo.
 
-Developers must have access to add or change config both where they are defined _and_ where they are used.
+Developers must have access to add or change configs where they are defined _and_ where they are used.
 
 _Config changes must not require more than one role (dev + sysadmin) or be done in more than one place (repo + servers)._
 
@@ -459,7 +459,7 @@ _Adding environment-specific settings must be done only when there is no other c
 
 
 ---
-## Env-specific settings are checked and loaded **once**
+## Env-specific settings are checked and loaded _once_
 
 The app must check _"the thing that defines the environment"_ (environment var, Apache SetEnv, hostname, etc.)  **exactly once**.
 
@@ -507,7 +507,7 @@ _Protect the mission-critical environment from being effected by a missing or in
 ---
 ## Only necessary keys are overridden (and minimally so)
 
-Leverage the production valus as "defaults" as much as possible.
+Leverage the production values as "defaults" as much as possible.
 
 Keep the other configs DRY by overriding **only** what is different in each environment.
 
@@ -547,9 +547,9 @@ It should always be presented with a **single** set of configs to use.
 
 _Provide the same collection of config keys to all environments. Change only their values per-environment._
 
-^ This one can get a little heady. We want to mentally separate the Cake app from the config set it consumes.
+^ This one can get a little heady since it's the exact opposite of the name of this talk, but we want to mentally separate the Cake app from the config set it consumes.
 
-^ The Cake app should only know about a single config set, and be ignorant of how that config set was compiled for its use.
+^ The Cake app should only know about a single config set, and be ignorant of how that config set was compiled for use.
 
 ^ In other words: The Cake app doesn't care how the config set came to be-- it's just going to run with the values provided to it.
 
@@ -583,7 +583,7 @@ if ($_SERVER['SERVER_NAME'] === 'www.site.com') {
 ```php
 // src/Template/Layout/default.ctp
 <?php
-	echo Configure::read('Env.Message');
+  echo Configure::read('Env.Message');
 ?>
 ```
 
@@ -615,7 +615,7 @@ echo Configure::read('MySection.MyKey');
 ## Cake's `Configure` class
 
 * Has an excellent API for setting, overriding and accessing values.
-* Is accessible nearly everywhere in a Cake app.
+* Is accessible everywhere in a Cake app.
 * With Cake 3, it is also better unified.
 	(DB, Email, Cache and App settings all in one place.)
 
@@ -769,7 +769,7 @@ return [
 
 * `config/app.php`
 * `config/app-*.php`
-	* _except `config/app-local.php`_
+	* _Except `config/app-local.php`_
 * Add `/config/app-local.php` to `.gitignore`.
 
 ^ Now it's time to get everything committed to source control.
@@ -780,7 +780,7 @@ return [
 
 
 ---
-## And we're done changing the code.
+## We're done changing the code.
 
 Now this example works, and prints a different message depending on the value of the `APP_ENV` environment variable.
 
@@ -914,10 +914,9 @@ public function envHint($env = null) {
 		       default: $css = '';                     break;
 	}
 	if (!empty($css) && Configure::read('debug') > 0) {
-		return sprintf('<style>.navbar-fixed-top{%s}</style>', $css);
-	} else {
-		return '';
+		return "<style>.navbar-fixed-top{ {$css} }</style>";
 	}
+	return '';
 }
 ```
 
@@ -942,11 +941,10 @@ public function envHint() {
 	$format = (string)Configure::read('Env.Hint.Format');
 	$snippet = (string)Configure::read('Env.Hint.Snippet');
 
-	if (!empty($snippet) && Configure::read('debug') > 0) {
+	if (!empty($snippet) && Configure::read('debug')) {
 		return sprintf($format, $snippet);
-	} else {
-		return '';
 	}
+	return '';
 }
 ```
 
@@ -956,7 +954,7 @@ public function envHint() {
 
 ^ But! No more hard-coded `$_SERVER['APP_ENV']` or `prod`, `staging`, `vagrant` etc.
 
-^ We can define a single `format` in the core.php config now, and we only have to specify the correct `snippet`s in `core-staging`, `core-vagrant` etc. So no unnecessary code duplication.
+^ We can define a single `format` in the config/app.php config now, and we only have to specify the correct `snippet`s in `app-staging`, `app-vagrant` etc. So no unnecessary code duplication.
 
 ^ Gives us _even better_ flexibility since we can now control the CSS being used completely.
 
@@ -964,27 +962,12 @@ public function envHint() {
 
 
 ---
-## Demo Project
-
-[github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
-
-* A demo Cake 3 app with vagrant.
-* Includes [loadsys/cakephp-config-read](https://github.com/loadsys/CakePHP-ConfigReadShell), a Shell for command line access to (environment-specific) Configure vars.
-* Switches app background color based on env.
-
-^ Since I'm pressed for time here, I have an example project up on GitHub that is set up as this talk describes.
-
-^ It provides some walkthroughs for thinking about and working with environment-specific values.
-
-
----
 ## Cake 2.x
 
 * Works in 2.x via `Config/core.php`.
-	* Requires a boilerplate `database.php` and `email.php` that load their configs from `Configure` instead of defining static class properties.
-	* Full examples in the demo repo in the `app-cake2` branch.
+* Requires a boilerplate `database.php` and `email.php` that load their configs from `Configure` instead of defining static class properties.
 
-^ The sample project also has a Cake 2 demo app that demonstrates the same concepts.
+^ These same concepts work in Cake 2.
 
 ^ It's slightly more setup since we need to deal with the separate `database.php`, `email.php` and `core.php` files, but the example project includes boilerplate versions of these files that load their configurations using `Configure` instead of the normal process of defining class properties.
  
@@ -1049,12 +1032,12 @@ if (is_readable(dirname(__FILE__) . DS . 'core-local.php')) {
 class DATABASE_CONFIG {
 	public $default = null;
 	public function __construct() {
-		$dbConfigs = Configure::read('Datasources');
-		if (!is_array($dbConfigs)) {
+		$configs = Configure::read('Datasources');
+		if (!is_array($configs)) {
 			throw new Exception('No `Datasources` connections defined in core.php.');
 		}
 
-		foreach ($dbConfigs as $key => $config) {
+		foreach ($configs as $key => $config) {
 			$this->{$key} = $config;
 		}
 
@@ -1081,12 +1064,12 @@ class DATABASE_CONFIG {
 class EmailConfig {
 	public $default = array();
 	public function __construct() {
-		$emailConfigs = Configure::read('EmailTransport');
-		if (!is_array($emailConfigs)) {
+		$configs = Configure::read('EmailTransport');
+		if (!is_array($configs)) {
 			throw new Exception('No `EmailTransport` key defined in core.php.');
 		}
 
-		foreach ($emailConfigs as $key => $config) {
+		foreach ($configs as $key => $config) {
 			$this->{$key} = $config;
 		}
 
@@ -1105,7 +1088,7 @@ class EmailConfig {
 
 
 ---
-## Other random points
+## Cake 1.x
 
 * This process even works all the way back in 1.2/1.3.
 	* **Mind `Configure::load()` in 1.x**: It overwrites entire keys instead of merging.
@@ -1118,6 +1101,23 @@ class EmailConfig {
 ^ I'm not providing examples because seriously, you should be doing your best to get away from Cake 1.x at this point.
 
 ^ That said, come talk to me about it if you're curious about the differences.
+
+
+---
+## Demo Project
+
+[github.com/beporter/CakePHP-EnvAwareness](https://github.com/beporter/CakePHP-EnvAwareness)
+
+<br>
+
+* Demo Cake 3 and Cake 2 apps with vagrant.
+* Includes [loadsys/cakephp-config-read](https://github.com/loadsys/CakePHP-ConfigReadShell), a Shell for command line access to (environment-specific) Configure vars.
+
+^ Since I'm about out of time already, I have an example project up on GitHub that is set up as this talk describes.
+
+^ It provides some walkthroughs for thinking about and working with environment-specific values.
+
+^ There are both Cake 2 and Cake 3 sample projects.
 
 
 ---
