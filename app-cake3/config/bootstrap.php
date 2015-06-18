@@ -74,9 +74,13 @@ try {
 try {
 	$env = getenv('APP_ENV');
 	Configure::load("app-{$env}", 'default');
+} catch (\Exception $e) {
+	// It is not an error if this file is missing.
+}
+try {
 	Configure::load('app-local', 'default');
 } catch (\Exception $e) {
-	// It is not an error if these files are missing.
+	// It is not an error if this file is missing.
 }
 
 // When debug = false the metadata cache should last
