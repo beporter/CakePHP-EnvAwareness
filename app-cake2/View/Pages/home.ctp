@@ -56,6 +56,13 @@ endif;
 			echo '<span class="notice success">';
 				echo __d('cake_dev', 'The %s is being used for core caching. To change the config edit %s', '<em>'. $settings['engine'] . 'Engine</em>', 'APP/Config/core.php');
 			echo '</span>';
+			echo '<span>';
+			echo $this->Html->link('View Cache config dumps', array(
+				'controller' => 'pages',
+				'action' => 'display',
+				'cache_config',
+			));
+			echo '</span>';
 		else:
 			echo '<span class="notice">';
 				echo __d('cake_dev', 'Your cache is NOT working. Please check the settings in %s', 'APP/Config/core.php');

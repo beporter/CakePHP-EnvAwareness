@@ -58,6 +58,15 @@ $config = array(
 	),
 
 	/**
+	 * In development mode, caches should expire quickly.
+	 */
+	'Cache' => array(
+		'default' => array(
+			'duration' => '+2 minutes',
+		),
+	),
+
+	/**
 	 * Vagrant environment hints.
 	 *
      * Override some generic properties of the app to make it easier

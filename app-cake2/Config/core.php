@@ -328,40 +328,43 @@
  * Note: 'default' and other application caches should be configured in app/Config/bootstrap.php.
  *       Please check the comments in bootstrap.php for more info on the cache engines available
  *       and their settings.
+ *
+ * Converted to Cake 3 style setup.
+ *
+ * The Cache configurations will actually be initialized later after
+ * environment-specific configs are loaded.
  */
-$engine = 'File';
+Configure::write('Cache', array(
+	/**
+	 * Provides baseline settings for each named config,
+	 * each of which will be array_merge()d on top of this.
+	 */
+	'default' => array(
+		'engine' => 'File', // In Cake 3, this key name changes from `engine` to `className`.
+		'path' => CACHE,
+		'duration' => '+999 days',
+		'prefix' => 'cake-2x_',
+	),
 
-// In development mode, caches should expire quickly.
-$duration = '+999 days';
-if (Configure::read('debug') > 0) {
-	$duration = '+10 seconds';
-}
+	/**
+	 * Configure the cache used for general framework caching. Path information,
+	 * object listings, and translation cache files are stored with this configuration.
+	 */
+	'_cake_core_' => array(
+		'prefix' => 'cake-2x_cake_core_',
+		'path' => CACHE . 'persistent' . DS,
+		'serialize' => true,
+	),
 
-// Prefix each application on the same server with a different string, to avoid Memcache and APC conflicts.
-$prefix = 'cake-2x_';
-
-/**
- * Configure the cache used for general framework caching. Path information,
- * object listings, and translation cache files are stored with this configuration.
- */
-Cache::config('_cake_core_', array(
-	'engine' => $engine,
-	'prefix' => $prefix . 'cake_core_',
-	'path' => CACHE . 'persistent' . DS,
-	'serialize' => ($engine === 'File'),
-	'duration' => $duration
-));
-
-/**
- * Configure the cache for model and datasource caches. This cache configuration
- * is used to store schema descriptions, and table listings in connections.
- */
-Cache::config('_cake_model_', array(
-	'engine' => $engine,
-	'prefix' => $prefix . 'cake_model_',
-	'path' => CACHE . 'models' . DS,
-	'serialize' => ($engine === 'File'),
-	'duration' => $duration
+	/**
+	 * Configure the cache for model and datasource caches. This cache configuration
+	 * is used to store schema descriptions, and table listings in connections.
+	 */
+	'_cake_model_' => array(
+		'prefix' => 'cake-2x_cake_model_',
+		'path' => CACHE . 'models' . DS,
+		'serialize' => true,
+	),
 ));
 
 /**
@@ -473,3 +476,22 @@ if (is_readable(dirname(__FILE__) . DS . "core-{$env}.php")) {
 if (is_readable(dirname(__FILE__) . DS . 'core-local.php')) {
 	Configure::load('core-local');
 }
+
+
+/**
+ * Initialize Caching late in the process so it can be made environment-aware.
+ *
+ * Tries to match how Cake 3 approaches Cache configuration.
+ */
+
+// Extract the defaults so we don't loop over them.
+$cacheDefaults = Configure::read('Cache.default');
+Configure::delete('Cache.default');
+
+// Load each named config, merging defaults.
+foreach (Configure::read('Cache') as $name => $configs) {
+	Cache::config($name, array_merge($cacheDefaults, $configs));
+}
+
+// Clean up after ourselves.
+unset($cacheDefaults);
