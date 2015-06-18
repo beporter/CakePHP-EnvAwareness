@@ -96,7 +96,7 @@ In your app, you can access a consistently named key and obtain a value appropri
 
 That's a much better alternative than this:
 
-```html
+```php
 <!-- src/Template/Layout/default.ctp -->
 <?php if ($_SERVER['SERVER_NAME'] === 'productionsite.com') {
 	$bgColor = '#ffffff'; // white in production
